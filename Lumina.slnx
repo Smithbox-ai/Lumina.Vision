@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="LuminaCalib.Tests/LuminaCalib.Tests.csproj" />
+  <Project Path="LuminaCalib/LuminaCalib.csproj" />
+</Solution>

@@ -1,0 +1,106 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:LuminaCalib.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DesignWidth="560"
+        d:DesignHeight="360"
+        x:Class="LuminaCalib.Views.AboutWindow"
+        x:DataType="vm:AboutWindowViewModel"
+        Title="{Binding WindowTitleText}"
+        Width="560"
+        Height="360"
+        MinWidth="520"
+        MinHeight="320"
+        Icon="/Assets/icon.jpg"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource BackgroundBrush}">
+
+    <Border Padding="24"
+            Background="{StaticResource SurfaceBrush}"
+            CornerRadius="10"
+            Margin="16">
+        <Grid RowDefinitions="Auto,*,Auto">
+            <TextBlock Grid.Row="0"
+                       Text="{Binding HeaderText}"
+                       FontSize="22"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource TextPrimaryBrush}"
+                       Margin="0,0,0,18"/>
+
+            <Grid Grid.Row="1"
+                  ColumnDefinitions="150,*"
+                  RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+                  RowSpacing="10"
+                  ColumnSpacing="12">
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           Text="{Binding ApplicationLabelText}"
+                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                <TextBlock Grid.Row="0"
+                           Grid.Column="1"
+                           Text="{Binding ApplicationNameText}"
+                           Foreground="{StaticResource TextPrimaryBrush}"/>
+
+                <TextBlock Grid.Row="1"
+                           Grid.Column="0"
+                           Text="{Binding VersionLabelText}"
+                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                <TextBlock Grid.Row="1"
+                           Grid.Column="1"
+                           Text="{Binding VersionValueText}"
+                           Foreground="{StaticResource TextPrimaryBrush}"/>
+
+                <TextBlock Grid.Row="2"
+                           Grid.Column="0"
+                           Text="{Binding AuthorLabelText}"
+                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                <TextBlock Grid.Row="2"
+                           Grid.Column="1"
+                           Text="{Binding AuthorNameText}"
+                           Foreground="{StaticResource TextPrimaryBrush}"/>
+
+                <TextBlock Grid.Row="3"
+                           Grid.Column="0"
+                           Text="{Binding LicenseLabelText}"
+                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                <TextBlock Grid.Row="3"
+                           Grid.Column="1"
+                           Text="{Binding LicenseValueText}"
+                           Foreground="{StaticResource TextPrimaryBrush}"/>
+
+                <TextBlock Grid.Row="4"
+                           Grid.Column="0"
+                           Text="{Binding OriginalProjectLabelText}"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           VerticalAlignment="Center"/>
+                <Grid Grid.Row="4"
+                      Grid.Column="1"
+                      ColumnDefinitions="*,Auto">
+                    <TextBlock Grid.Column="0"
+                               Text="{Binding OriginalProjectUrlText}"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis"
+                               Margin="0,0,8,0"/>
+                    <Button Grid.Column="1"
+                            Content="{Binding OpenLinkButtonText}"
+                            Command="{Binding OpenOriginalProjectLinkCommand}"
+                            Classes="secondary"/>
+                </Grid>
+            </Grid>
+
+            <StackPanel Grid.Row="2"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Margin="0,18,0,0">
+                <Button Content="{Binding CloseButtonText}"
+                        Command="{Binding CloseCommand}"
+                        Classes="primary"
+                        MinWidth="96"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

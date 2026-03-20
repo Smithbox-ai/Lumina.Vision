@@ -1,0 +1,508 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LuminaCalib.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="700"
+             x:Class="LuminaCalib.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+
+    <Design.DataContext>
+        <vm:SettingsViewModel/>
+    </Design.DataContext>
+
+    <Border Background="{StaticResource BackgroundBrush}" Padding="24">
+        <Grid RowDefinitions="Auto,*,Auto,Auto">
+            
+            <!-- Header -->
+            <TextBlock Grid.Row="0" 
+                       Text="{Binding SettingsHeaderText}" 
+                       FontSize="24" 
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource TextPrimaryBrush}"
+                       Margin="0,0,0,24"/>
+            
+            <!-- Tab Content -->
+            <TabControl Grid.Row="1" 
+                        SelectedIndex="{Binding SelectedTabIndex}">
+                
+                <!-- General Tab -->
+                <TabItem Header="{Binding GeneralTabText}">
+                    <ScrollViewer Padding="0,0,12,0"
+                                  AllowAutoHide="False"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  VerticalScrollBarVisibility="Auto">
+                        <StackPanel Spacing="16" Margin="0,16,0,0">
+                            <TextBlock Text="{Binding ApplicationSettingsTitleText}" 
+                                       Foreground="{StaticResource AccentBrush}" 
+                                       FontWeight="SemiBold"/>
+                            
+                            <Grid ColumnDefinitions="170,*" RowDefinitions="Auto,Auto,Auto,Auto">
+                                <TextBlock Grid.Row="0" Grid.Column="0" 
+                                           Text="{Binding LanguageLabelText}" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center"/>
+                                <ComboBox Grid.Row="0" Grid.Column="1" 
+                                          ItemsSource="{Binding AvailableLanguages}"
+                                          SelectedItem="{Binding Settings.Language}"
+                                          Width="200"
+                                          HorizontalAlignment="Left"/>
+                                
+                                <TextBlock Grid.Row="1" Grid.Column="0" 
+                                           Text="{Binding AutoSaveLabelText}" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,12,0,0"/>
+                                <CheckBox Grid.Row="1" Grid.Column="1" 
+                                          IsChecked="{Binding Settings.AutoSaveCalibration}"
+                                          Content="{Binding AutoSaveCheckText}"
+                                          Margin="0,12,0,0"/>
+                                
+                                <TextBlock Grid.Row="2" Grid.Column="0" 
+                                           Text="{Binding DataPathLabelText}" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,12,0,0"/>
+                                <Grid Grid.Row="2" Grid.Column="1" 
+                                      ColumnDefinitions="*,Auto"
+                                      Margin="0,12,0,0">
+                                    <TextBox Grid.Column="0" 
+                                             Text="{Binding Settings.CalibrationDataPath}"/>
+                                    <Button Grid.Column="1" 
+                                            Content="{Binding BrowseButtonText}"
+                                            Command="{Binding BrowseCalibrationPathCommand}"
+                                            Margin="8,0,0,0"/>
+                                </Grid>
+
+                                <TextBlock Grid.Row="3" Grid.Column="0" 
+                                           Text="{Binding CaptureSessionsPathLabelText}" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,12,0,0"/>
+                                <Grid Grid.Row="3" Grid.Column="1" 
+                                      ColumnDefinitions="*,Auto"
+                                      Margin="0,12,0,0">
+                                    <TextBox Grid.Column="0" 
+                                             Text="{Binding Settings.CaptureSessionsPath}"/>
+                                    <Button Grid.Column="1" 
+                                            Content="{Binding BrowseButtonText}"
+                                            Command="{Binding BrowseCaptureSessionsPathCommand}"
+                                            Margin="8,0,0,0"/>
+                                </Grid>
+                            </Grid>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+                
+                <!-- Cameras Tab -->
+                <TabItem Header="{Binding CamerasTabText}">
+                    <ScrollViewer Padding="0,0,12,0"
+                                  AllowAutoHide="False"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  VerticalScrollBarVisibility="Auto">
+                        <StackPanel Spacing="24" Margin="0,16,0,0">
+                            
+                            <!-- Left Camera -->
+                            <Border Background="{StaticResource SurfaceBrush}" 
+                                    CornerRadius="8" 
+                                    Padding="16">
+                                <StackPanel Spacing="12">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" 
+                                                   Text="{Binding LeftCameraTitleText}" 
+                                                   Foreground="{StaticResource AccentBrush}" 
+                                                   FontWeight="SemiBold"/>
+                                        <Button Grid.Column="1" 
+                                                Content="{Binding TestButtonText}"
+                                                Command="{Binding TestLeftCameraCommand}"
+                                                Classes="secondary"/>
+                                    </Grid>
+                                    
+                                    <Grid ColumnDefinitions="80,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+                                        <TextBlock Grid.Row="0" Grid.Column="0" 
+                                                   Text="{Binding UrlLabelText}" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBox Grid.Row="0" Grid.Column="1" 
+                                                 Text="{Binding Settings.LeftCameraUrl}"
+                                                 Watermark="{Binding LeftCameraUrlWatermark}"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="1"
+                                                   Text="{Binding LeftUrlError}"
+                                                   Classes="validation-error-text"
+                                                   IsVisible="{Binding LeftUrlError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                        
+                                        <TextBlock Grid.Row="2" Grid.Column="0" 
+                                                   Text="{Binding LoginLabelText}" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,8,0,0"/>
+                                        <TextBox Grid.Row="2" Grid.Column="1" 
+                                                 Text="{Binding Settings.LeftCameraLogin}"
+                                                 Margin="0,8,0,0"/>
+                                        
+                                        <TextBlock Grid.Row="3" Grid.Column="0" 
+                                                   Text="{Binding PasswordLabelText}" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,8,0,0"/>
+                                        <TextBox Grid.Row="3" Grid.Column="1" 
+                                                 Text="{Binding Settings.LeftCameraPassword}"
+                                                 PasswordChar="*"
+                                                 Margin="0,8,0,0"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- Right Camera -->
+                            <Border Background="{StaticResource SurfaceBrush}" 
+                                    CornerRadius="8" 
+                                    Padding="16">
+                                <StackPanel Spacing="12">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" 
+                                                   Text="{Binding RightCameraTitleText}" 
+                                                   Foreground="{StaticResource AccentBrush}" 
+                                                   FontWeight="SemiBold"/>
+                                        <Button Grid.Column="1" 
+                                                Content="{Binding TestButtonText}"
+                                                Command="{Binding TestRightCameraCommand}"
+                                                Classes="secondary"/>
+                                    </Grid>
+                                    
+                                    <Grid ColumnDefinitions="80,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+                                        <TextBlock Grid.Row="0" Grid.Column="0" 
+                                                   Text="{Binding UrlLabelText}" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBox Grid.Row="0" Grid.Column="1" 
+                                                 Text="{Binding Settings.RightCameraUrl}"
+                                                 Watermark="{Binding RightCameraUrlWatermark}"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="1"
+                                                   Text="{Binding RightUrlError}"
+                                                   Classes="validation-error-text"
+                                                   IsVisible="{Binding RightUrlError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                        
+                                        <TextBlock Grid.Row="2" Grid.Column="0" 
+                                                   Text="{Binding LoginLabelText}" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,8,0,0"/>
+                                        <TextBox Grid.Row="2" Grid.Column="1" 
+                                                 Text="{Binding Settings.RightCameraLogin}"
+                                                 Margin="0,8,0,0"/>
+                                        
+                                        <TextBlock Grid.Row="3" Grid.Column="0" 
+                                                   Text="{Binding PasswordLabelText}" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,8,0,0"/>
+                                        <TextBox Grid.Row="3" Grid.Column="1" 
+                                                 Text="{Binding Settings.RightCameraPassword}"
+                                                 PasswordChar="*"
+                                                 Margin="0,8,0,0"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                            
+                            <!-- Advanced Settings Toggle -->
+                            <CheckBox Content="{Binding ShowAdvancedSettingsText}"
+                                      IsChecked="{Binding ShowAdvancedSettings}"/>
+                            
+                            <!-- Advanced Settings Panel -->
+                            <Border Background="{StaticResource SurfaceBrush}" 
+                                    CornerRadius="8" 
+                                    Padding="16"
+                                    IsVisible="{Binding ShowAdvancedSettings}">
+                                <StackPanel Spacing="12">
+                                    <TextBlock Text="{Binding AdvancedCameraSettingsTitleText}" 
+                                               Foreground="{StaticResource AccentBrush}" 
+                                               FontWeight="SemiBold"/>
+                                    
+                                    <Grid ColumnDefinitions="220,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                                        <TextBlock Grid.Row="0" Grid.Column="0" 
+                                                   Text="{Binding TransportLabelText}" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"/>
+                                        <ComboBox Grid.Row="0" Grid.Column="1" 
+                                                  ItemsSource="{Binding AvailableTransportProtocols}"
+                                                  SelectedItem="{Binding Settings.TransportProtocol}"
+                                                  Width="150"
+                                                  HorizontalAlignment="Left"/>
+                                        
+                                        <TextBlock Grid.Row="1" Grid.Column="0" 
+                                                   Text="{Binding BackendLabelText}" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,12,0,0"/>
+                                        <ComboBox Grid.Row="1" Grid.Column="1" 
+                                                  ItemsSource="{Binding AvailableBackends}"
+                                                  SelectedItem="{Binding Settings.CameraBackend}"
+                                                  Width="150"
+                                                  HorizontalAlignment="Left"
+                                                  Margin="0,12,0,0"/>
+                                        
+                                        <TextBlock Grid.Row="2" Grid.Column="0" 
+                                                   Text="{Binding HwAccelerationLabelText}" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,12,0,0"/>
+                                        <ComboBox Grid.Row="2" Grid.Column="1" 
+                                                  ItemsSource="{Binding AvailableAccelerations}"
+                                                  SelectedItem="{Binding Settings.HwAcceleration}"
+                                                  Width="150"
+                                                  HorizontalAlignment="Left"
+                                                  Margin="0,12,0,0"/>
+                                        
+                                        <TextBlock Grid.Row="3" Grid.Column="0" 
+                                                   Text="{Binding BufferSizeLabelText}" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,12,0,0"/>
+                                        <NumericUpDown Grid.Row="3" Grid.Column="1" 
+                                                       Value="{Binding Settings.BufferSize}"
+                                                       Minimum="1"
+                                                       Maximum="10"
+                                                       Width="100"
+                                                       HorizontalAlignment="Left"
+                                                       Margin="0,12,0,0"/>
+
+                                        <TextBlock Grid.Row="4" Grid.Column="0" 
+                                                   Text="{Binding NoFrameTimeoutLabelText}" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,12,0,0"/>
+                                        <NumericUpDown Grid.Row="4" Grid.Column="1" 
+                                                       Value="{Binding Settings.CameraNoFrameTimeoutMs}"
+                                                       Minimum="250"
+                                                       Maximum="10000"
+                                                       Increment="50"
+                                                       Width="120"
+                                                       HorizontalAlignment="Left"
+                                                       Margin="0,12,0,0"/>
+
+                                        <TextBlock Grid.Row="5" Grid.Column="0" 
+                                                   Text="{Binding ReconnectInitialDelayLabelText}" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,12,0,0"/>
+                                        <NumericUpDown Grid.Row="5" Grid.Column="1" 
+                                                       Value="{Binding Settings.CameraReconnectInitialDelayMs}"
+                                                       Minimum="100"
+                                                       Maximum="10000"
+                                                       Increment="100"
+                                                       Width="120"
+                                                       HorizontalAlignment="Left"
+                                                       Margin="0,12,0,0"/>
+
+                                        <TextBlock Grid.Row="6" Grid.Column="0" 
+                                                   Text="{Binding ReconnectMaxDelayLabelText}" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,12,0,0"/>
+                                        <NumericUpDown Grid.Row="6" Grid.Column="1" 
+                                                       Value="{Binding Settings.CameraReconnectMaxDelayMs}"
+                                                       Minimum="1000"
+                                                       Maximum="30000"
+                                                       Increment="500"
+                                                       Width="120"
+                                                       HorizontalAlignment="Left"
+                                                       Margin="0,12,0,0"/>
+
+                                        <TextBlock Grid.Row="7" Grid.Column="0" 
+                                                   Text="{Binding ConnectionTimeoutLabelText}" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,12,0,0"/>
+                                        <NumericUpDown Grid.Row="7" Grid.Column="1" 
+                                                       Value="{Binding Settings.CameraConnectionTimeoutMs}"
+                                                       Minimum="0"
+                                                       Maximum="60000"
+                                                       Increment="1000"
+                                                       Width="120"
+                                                       HorizontalAlignment="Left"
+                                                       Margin="0,12,0,0"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+                
+                <!-- Board Tab -->
+                <TabItem Header="{Binding BoardTabText}">
+                    <ScrollViewer Padding="0,0,14,0"
+                                  AllowAutoHide="False"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  VerticalScrollBarVisibility="Auto">
+                        <StackPanel Spacing="16" Margin="0,16,10,0">
+                            <TextBlock Text="{Binding CalibrationBoardSettingsTitleText}" 
+                                       Foreground="{StaticResource AccentBrush}" 
+                                       FontWeight="SemiBold"/>
+                            
+                            <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                                <TextBlock Grid.Row="0" Grid.Column="0" 
+                                           Text="{Binding BoardTypeLabelText}" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center"/>
+                                <ComboBox Grid.Row="0" Grid.Column="1" 
+                                          ItemsSource="{Binding AvailableBoardTypes}"
+                                          SelectedItem="{Binding Settings.BoardType}"
+                                          Width="200"
+                                          HorizontalAlignment="Left"/>
+                                
+                                <TextBlock Grid.Row="1" Grid.Column="0" 
+                                           Text="{Binding PatternWidthLabelText}" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,12,0,0"/>
+                                <NumericUpDown Grid.Row="1" Grid.Column="1" 
+                                               Value="{Binding Settings.PatternWidth}"
+                                               Minimum="3"
+                                               Maximum="20"
+                                               Width="100"
+                                               HorizontalAlignment="Left"
+                                               Margin="0,12,0,0"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1"
+                                           Text="{Binding PatternWidthError}"
+                                           Classes="validation-error-text"
+                                           IsVisible="{Binding PatternWidthError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                
+                                <TextBlock Grid.Row="3" Grid.Column="0" 
+                                           Text="{Binding PatternHeightLabelText}" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,12,0,0"/>
+                                <NumericUpDown Grid.Row="3" Grid.Column="1" 
+                                               Value="{Binding Settings.PatternHeight}"
+                                               Minimum="3"
+                                               Maximum="20"
+                                               Width="100"
+                                               HorizontalAlignment="Left"
+                                               Margin="0,12,0,0"/>
+                                <TextBlock Grid.Row="4" Grid.Column="1"
+                                           Text="{Binding PatternHeightError}"
+                                           Classes="validation-error-text"
+                                           IsVisible="{Binding PatternHeightError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                
+                                <TextBlock Grid.Row="5" Grid.Column="0" 
+                                           Text="{Binding SquareSizeLabelText}" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,12,0,0"/>
+                                <NumericUpDown Grid.Row="5" Grid.Column="1" 
+                                               Value="{Binding Settings.SquareSize}"
+                                               Minimum="5"
+                                               Maximum="200"
+                                               Width="100"
+                                               HorizontalAlignment="Left"
+                                               Margin="0,12,0,0"/>
+                                <TextBlock Grid.Row="6" Grid.Column="1"
+                                           Text="{Binding SquareSizeError}"
+                                           Classes="validation-error-text"
+                                           IsVisible="{Binding SquareSizeError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                
+                                <TextBlock Grid.Row="7" Grid.Column="0" 
+                                           Text="{Binding RequiredFramesLabelText}" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,12,0,0"/>
+                                <NumericUpDown Grid.Row="7" Grid.Column="1" 
+                                               Value="{Binding Settings.RequiredFrames}"
+                                               Minimum="10"
+                                               Maximum="100"
+                                               Width="100"
+                                               HorizontalAlignment="Left"
+                                               Margin="0,12,0,0"/>
+                                
+                                <TextBlock Grid.Row="8" Grid.Column="0" 
+                                           Text="{Binding SyncToleranceLabelText}" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,12,0,0"/>
+                                <NumericUpDown Grid.Row="8" Grid.Column="1" 
+                                               Value="{Binding Settings.SyncToleranceMs}"
+                                               Minimum="5"
+                                               Maximum="100"
+                                               Width="100"
+                                               HorizontalAlignment="Left"
+                                               Margin="0,12,0,0"/>
+                                <TextBlock Grid.Row="9" Grid.Column="1"
+                                           Text="{Binding SyncToleranceError}"
+                                           Classes="validation-error-text"
+                                           IsVisible="{Binding SyncToleranceError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
+                                <TextBlock Grid.Row="10" Grid.Column="0"
+                                           Text="{Binding DetectionIntervalLabelText}"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,12,0,0"/>
+                                <NumericUpDown Grid.Row="10" Grid.Column="1"
+                                               Value="{Binding Settings.DetectionIntervalMs}"
+                                               Minimum="0"
+                                               Maximum="2000"
+                                               Increment="5"
+                                               Width="100"
+                                               HorizontalAlignment="Left"
+                                               Margin="0,12,0,0"/>
+                                <TextBlock Grid.Row="11" Grid.Column="1"
+                                           Text="{Binding DetectionIntervalError}"
+                                           Classes="validation-error-text"
+                                           IsVisible="{Binding DetectionIntervalError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
+                                <TextBlock Grid.Row="12" Grid.Column="0"
+                                           Text="{Binding DetectionScaleLabelText}"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,12,0,0"/>
+                                <NumericUpDown Grid.Row="12" Grid.Column="1"
+                                               Value="{Binding Settings.DetectionScale}"
+                                               Minimum="0.1"
+                                               Maximum="1.0"
+                                               Increment="0.1"
+                                               FormatString="F1"
+                                               Width="100"
+                                               HorizontalAlignment="Left"
+                                               Margin="0,12,0,0"/>
+                                <TextBlock Grid.Row="13" Grid.Column="1"
+                                           Text="{Binding DetectionScaleError}"
+                                           Classes="validation-error-text"
+                                           IsVisible="{Binding DetectionScaleError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                            </Grid>
+                            
+                            <Button Content="{Binding GenerateBoardButtonText}"
+                                    Command="{Binding OpenBoardGeneratorCommand}"
+                                    Classes="secondary"
+                                    HorizontalAlignment="Left"
+                                    Margin="0,16,0,0"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
+            
+            <TextBlock Grid.Row="2"
+                       Text="{Binding StatusMessage}"
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       Margin="0,16,0,0"/>
+                        <!-- Footer Buttons -->
+            <StackPanel Grid.Row="3" 
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Right"
+                        Spacing="12"
+                        Margin="0,24,0,0">
+                <Button Content="{Binding ResetDefaultsButtonText}"
+                        Command="{Binding ResetCommand}"
+                        Classes="secondary"/>
+                <Button Content="{Binding ApplyButtonText}"
+                        Command="{Binding ApplyCommand}"
+                        Classes="secondary"
+                        IsEnabled="{Binding CanSave}"/>
+                <Button Content="{Binding SaveButtonText}"
+                        Command="{Binding SaveCommand}"
+                        Classes="primary"
+                        IsEnabled="{Binding CanSave}"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>
+
+

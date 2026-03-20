@@ -1,0 +1,379 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LuminaCalib.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="1100"
+             d:DesignHeight="700"
+             x:Class="LuminaCalib.Views.DepthMapView"
+             x:DataType="vm:DepthMapViewModel">
+
+    <Design.DataContext>
+        <vm:DepthMapViewModel/>
+    </Design.DataContext>
+
+    <!-- Root: 2 rows — main content + status bar -->
+    <Grid RowDefinitions="*,Auto">
+
+        <!-- Row 0: Image area + Settings panel -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+
+            <!-- Column 0: Depth map image area -->
+            <Border Classes="surface" Margin="0,0,8,0" Padding="0" Grid.Column="0">
+                <Grid>
+                    <Image x:Name="DepthMapImageControl"
+                           Source="{Binding DepthMapImage}"
+                           Stretch="Uniform"/>
+                    <!-- Placeholder when no depth map -->
+                    <Border IsVisible="{Binding DepthMapImage, Converter={x:Static ObjectConverters.IsNull}}"
+                            Background="{StaticResource OverlayDimBrush}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            CornerRadius="8"
+                            Padding="24,16">
+                        <TextBlock Text="{Binding NoCalibrationLoadedText}"
+                                   Foreground="{StaticResource TextDisabledBrush}"
+                                   FontSize="16"/>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Column 1: Settings panel -->
+            <Border Classes="surface"
+                    Grid.Column="1"
+                    Padding="12"
+                    Width="340"
+                    MinWidth="300"
+                    MaxWidth="380">
+                <ScrollViewer Padding="0,0,10,0"
+                              AllowAutoHide="False"
+                              HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="12">
+
+                        <!-- Title -->
+                        <TextBlock Text="{Binding TitleText}"
+                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                   FontSize="20"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,4"/>
+
+                        <!-- Enable toggle -->
+                        <ToggleSwitch IsChecked="{Binding IsEnabled}"
+                                      Content="{Binding EnableToggleText}"/>
+
+                        <!-- ═══════ Presets ═══════ -->
+                        <TextBlock Text="{Binding PresetsText}"
+                                   Foreground="{StaticResource AccentBrush}"
+                                   FontWeight="SemiBold"
+                                   FontSize="14"
+                                   Margin="0,8,0,4"/>
+
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="6">
+                            <Button Grid.Column="0"
+                                    Command="{Binding ApplyPresetFastCommand}"
+                                    Classes="secondary"
+                                    HorizontalAlignment="Stretch"
+                                    Padding="8,6">
+                                <TextBlock Text="{Binding PresetFastText}"
+                                           TextAlignment="Center"
+                                           TextWrapping="Wrap"/>
+                            </Button>
+                            <Button Grid.Column="1"
+                                    Command="{Binding ApplyPresetBalancedCommand}"
+                                    Classes="secondary"
+                                    HorizontalAlignment="Stretch"
+                                    Padding="8,6">
+                                <TextBlock Text="{Binding PresetBalancedText}"
+                                           TextAlignment="Center"
+                                           TextWrapping="Wrap"/>
+                            </Button>
+                            <Button Grid.Column="2"
+                                    Command="{Binding ApplyPresetQualityCommand}"
+                                    Classes="secondary"
+                                    HorizontalAlignment="Stretch"
+                                    Padding="8,6">
+                                <TextBlock Text="{Binding PresetQualityText}"
+                                           TextAlignment="Center"
+                                           TextWrapping="Wrap"/>
+                            </Button>
+                        </Grid>
+
+                        <!-- ═══════ SGBM Settings ═══════ -->
+                        <TextBlock Text="{Binding SgbmSettingsText}"
+                                   Foreground="{StaticResource AccentBrush}"
+                                   FontWeight="SemiBold"
+                                   FontSize="14"
+                                   Margin="0,8,0,4"/>
+
+                        <!-- NumDisparities -->
+                        <StackPanel Spacing="2">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="{Binding NumDisparitiesText}"
+                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding Settings.NumDisparities}"
+                                           FontSize="12" Foreground="{StaticResource AccentBrush}"/>
+                            </Grid>
+                            <Slider Minimum="16" Maximum="512"
+                                    TickFrequency="16" IsSnapToTickEnabled="True"
+                                    Value="{Binding Settings.NumDisparities}"/>
+                        </StackPanel>
+
+                        <!-- BlockSize -->
+                        <StackPanel Spacing="2">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="{Binding BlockSizeText}"
+                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding Settings.BlockSize}"
+                                           FontSize="12" Foreground="{StaticResource AccentBrush}"/>
+                            </Grid>
+                            <Slider Minimum="3" Maximum="11"
+                                    TickFrequency="2" IsSnapToTickEnabled="True"
+                                    Value="{Binding Settings.BlockSize}"/>
+                        </StackPanel>
+
+                        <!-- UniquenessRatio -->
+                        <StackPanel Spacing="2">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="{Binding UniquenessRatioText}"
+                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding Settings.UniquenessRatio}"
+                                           FontSize="12" Foreground="{StaticResource AccentBrush}"/>
+                            </Grid>
+                            <Slider Minimum="0" Maximum="25"
+                                    TickFrequency="1" IsSnapToTickEnabled="True"
+                                    Value="{Binding Settings.UniquenessRatio}"/>
+                        </StackPanel>
+
+                        <!-- SpeckleWindowSize -->
+                        <StackPanel Spacing="2">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="{Binding SpeckleWindowSizeText}"
+                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding Settings.SpeckleWindowSize}"
+                                           FontSize="12" Foreground="{StaticResource AccentBrush}"/>
+                            </Grid>
+                            <Slider Minimum="0" Maximum="400"
+                                    TickFrequency="10" IsSnapToTickEnabled="True"
+                                    Value="{Binding Settings.SpeckleWindowSize}"/>
+                        </StackPanel>
+
+                        <!-- SpeckleRange -->
+                        <StackPanel Spacing="2">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="{Binding SpeckleRangeText}"
+                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding Settings.SpeckleRange}"
+                                           FontSize="12" Foreground="{StaticResource AccentBrush}"/>
+                            </Grid>
+                            <Slider Minimum="0" Maximum="5"
+                                    TickFrequency="1" IsSnapToTickEnabled="True"
+                                    Value="{Binding Settings.SpeckleRange}"/>
+                        </StackPanel>
+
+                        <!-- MinDisparity -->
+                        <StackPanel Spacing="2">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="{Binding MinDisparityText}"
+                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding Settings.MinDisparity}"
+                                           FontSize="12" Foreground="{StaticResource AccentBrush}"/>
+                            </Grid>
+                            <Slider Minimum="0" Maximum="64"
+                                    TickFrequency="1" IsSnapToTickEnabled="True"
+                                    Value="{Binding Settings.MinDisparity}"/>
+                        </StackPanel>
+
+                        <!-- PreFilterCap -->
+                        <StackPanel Spacing="2">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="{Binding PreFilterCapText}"
+                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding Settings.PreFilterCap}"
+                                           FontSize="12" Foreground="{StaticResource AccentBrush}"/>
+                            </Grid>
+                            <Slider Minimum="1" Maximum="63"
+                                    TickFrequency="1" IsSnapToTickEnabled="True"
+                                    Value="{Binding Settings.PreFilterCap}"/>
+                        </StackPanel>
+
+                        <!-- SgbmMode -->
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="{Binding SgbmModeText}"
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                            <ComboBox ItemsSource="{Binding AvailableSgbmModes}"
+                                      SelectedItem="{Binding Settings.SgbmMode}"
+                                      HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+
+                        <!-- ═══════ WLS Filter ═══════ -->
+                        <TextBlock Text="{Binding WlsSettingsText}"
+                                   Foreground="{StaticResource AccentBrush}"
+                                   FontWeight="SemiBold"
+                                   FontSize="14"
+                                   Margin="0,8,0,4"/>
+
+                        <CheckBox IsChecked="{Binding Settings.UseWlsFilter}"
+                                  Content="{Binding UseWlsFilterText}"/>
+
+                        <!-- WLS Lambda (скрыт: EmguCV 4.12 не экспортирует сеттеры) -->
+                        <StackPanel Spacing="2" IsEnabled="{Binding Settings.UseWlsFilter}" IsVisible="False">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="{Binding WlsLambdaText}"
+                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding Settings.WlsLambda, StringFormat='{}{0:F0}'}"
+                                           FontSize="12" Foreground="{StaticResource AccentBrush}"/>
+                            </Grid>
+                            <Slider Minimum="1000" Maximum="100000"
+                                    TickFrequency="1000" IsSnapToTickEnabled="True"
+                                    Value="{Binding Settings.WlsLambda}"/>
+                        </StackPanel>
+
+                        <!-- WLS Sigma Color (скрыт: EmguCV 4.12 не экспортирует сеттеры) -->
+                        <StackPanel Spacing="2" IsEnabled="{Binding Settings.UseWlsFilter}" IsVisible="False">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="{Binding WlsSigmaColorText}"
+                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding Settings.WlsSigmaColor, StringFormat='{}{0:F1}'}"
+                                           FontSize="12" Foreground="{StaticResource AccentBrush}"/>
+                            </Grid>
+                            <Slider Minimum="0.1" Maximum="3.0"
+                                    TickFrequency="0.1" IsSnapToTickEnabled="True"
+                                    Value="{Binding Settings.WlsSigmaColor}"/>
+                        </StackPanel>
+
+                        <!-- ═══════ Post-Processing ═══════ -->
+                        <TextBlock Text="{Binding PostProcessingText}"
+                                   Foreground="{StaticResource AccentBrush}"
+                                   FontWeight="SemiBold"
+                                   FontSize="14"
+                                   Margin="0,8,0,4"/>
+
+                        <CheckBox IsChecked="{Binding Settings.UseMorphologicalClosing}"
+                                  Content="{Binding UseMorphClosingText}"/>
+
+                        <!-- MorphKernelSize -->
+                        <StackPanel Spacing="2" IsEnabled="{Binding Settings.UseMorphologicalClosing}">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="{Binding MorphKernelSizeText}"
+                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding Settings.MorphKernelSize}"
+                                           FontSize="12" Foreground="{StaticResource AccentBrush}"/>
+                            </Grid>
+                            <Slider Minimum="3" Maximum="15"
+                                    TickFrequency="2" IsSnapToTickEnabled="True"
+                                    Value="{Binding Settings.MorphKernelSize}"/>
+                        </StackPanel>
+
+                        <!-- DisplayScale -->
+                        <StackPanel Spacing="2">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="{Binding DisplayScaleText}"
+                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding Settings.DisplayScale, StringFormat='{}{0:F2}'}"
+                                           FontSize="12" Foreground="{StaticResource AccentBrush}"/>
+                            </Grid>
+                            <Slider Minimum="0.25" Maximum="1.0"
+                                    TickFrequency="0.25" IsSnapToTickEnabled="True"
+                                    Value="{Binding Settings.DisplayScale}"/>
+                        </StackPanel>
+
+                        <!-- ═══════ Visualization ═══════ -->
+                        <TextBlock Text="{Binding VisualizationText}"
+                                   Foreground="{StaticResource AccentBrush}"
+                                   FontWeight="SemiBold"
+                                   FontSize="14"
+                                   Margin="0,8,0,4"/>
+
+                        <!-- Colormap -->
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="{Binding ColormapText}"
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"/>
+                            <ComboBox ItemsSource="{Binding AvailableColormaps}"
+                                      SelectedItem="{Binding Settings.Colormap}"
+                                      HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+
+                        <!-- ═══════ Acceleration ═══════ -->
+                        <TextBlock Text="{Binding CudaAccelerationText}"
+                                   Foreground="{StaticResource AccentBrush}"
+                                   FontWeight="SemiBold"
+                                   FontSize="14"
+                                   Margin="0,8,0,4"/>
+
+                        <ToggleSwitch IsChecked="{Binding Settings.UseCuda}"
+                                      IsEnabled="{Binding !Settings.UseWlsFilter}"
+                                      Content="{Binding UseCudaText}"/>
+
+                        <TextBlock Text="{Binding CudaStatusText}"
+                                   FontSize="11"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   Margin="0,4,0,0"/>
+
+                        <TextBlock Text="{Binding CudaWarningText}"
+                                   IsVisible="{Binding CudaWarningText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                   Foreground="Orange" FontSize="11" TextWrapping="Wrap"
+                                   Margin="0,4,0,0"/>
+
+                        <!-- ═══════ Actions ═══════ -->
+                        <TextBlock Text="{Binding ActionsText}"
+                                   Foreground="{StaticResource AccentBrush}"
+                                   FontWeight="SemiBold"
+                                   FontSize="14"
+                                   Margin="0,8,0,4"/>
+
+                        <StackPanel Spacing="8">
+                            <Button Content="{Binding SaveSnapshotText}"
+                                    Command="{Binding SaveSnapshotCommand}"
+                                    Classes="primary"
+                                    HorizontalAlignment="Stretch"
+                                    Padding="12,8"/>
+                            <Button Content="{Binding ExportPointCloudText}"
+                                    Command="{Binding ExportPointCloudCommand}"
+                                    Classes="secondary"
+                                    HorizontalAlignment="Stretch"
+                                    Padding="12,8"/>
+                        </StackPanel>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+        </Grid>
+
+        <!-- Row 1: Status bar -->
+        <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}" Padding="12,6" CornerRadius="0,0,8,8">
+            <Grid ColumnDefinitions="Auto,4,Auto,16,Auto,4,Auto,*">
+                <TextBlock Text="{Binding ProcessingTimeLabelText}"
+                           Foreground="{StaticResource TextMutedBrush}"/>
+                <TextBlock Grid.Column="2"
+                           Text="{Binding ProcessingTimeMs, StringFormat='{}{0:F1} ms'}"
+                           Foreground="{StaticResource AccentBrush}"/>
+                <TextBlock Grid.Column="4"
+                           Text="{Binding FpsLabelText}"
+                           Foreground="{StaticResource TextMutedBrush}"/>
+                <TextBlock Grid.Column="6"
+                           Text="{Binding DepthMapFps, StringFormat='{}{0:F1}'}"
+                           Foreground="{StaticResource AccentBrush}"/>
+                <TextBlock Grid.Column="7"
+                           Text="{Binding StatusText}"
+                           Foreground="{StaticResource TextMutedBrush}"
+                           HorizontalAlignment="Right"/>
+            </Grid>
+        </Border>
+
+    </Grid>
+
+</UserControl>

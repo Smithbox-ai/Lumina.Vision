@@ -1,0 +1,264 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LuminaCalib.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="1100"
+             d:DesignHeight="700"
+             x:Class="LuminaCalib.Views.CalibrationManagerView"
+             x:DataType="vm:CalibrationManagerViewModel">
+
+    <Design.DataContext>
+        <vm:CalibrationManagerViewModel/>
+    </Design.DataContext>
+
+    <UserControl.Styles>
+        <Style Selector="RadioButton.mode-tab">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="RadioButton.mode-tab:checked">
+            <Setter Property="Background" Value="{StaticResource SurfaceLightBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style Selector="RadioButton.mode-tab:pointerover">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto,Auto" Margin="0,8,0,0">
+
+        <!-- Row 0: Header Bar -->
+        <Border Grid.Row="0" Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="16" Margin="0,0,0,8">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                <Button Grid.Column="0"
+                        Content="{Binding RefreshButtonText}"
+                        Command="{Binding RefreshCommand}"
+                        Classes="secondary"/>
+                <TextBlock Grid.Column="1"
+                           Text="{Binding StatusMessage}"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           VerticalAlignment="Center"
+                           TextWrapping="Wrap"/>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                    <Button Content="{Binding OpenCalibrationsFolderText}"
+                            Command="{Binding OpenCalibrationsFolderCommand}"
+                            Classes="secondary"/>
+                    <Button Content="{Binding OpenSessionsFolderText}"
+                            Command="{Binding OpenSessionsFolderCommand}"
+                            Classes="secondary"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Row 1: Mode Selector -->
+        <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="12" Margin="0,0,0,8">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="4">
+                <RadioButton GroupName="CalibrationManagerModeGroup"
+                             Content="{Binding AutoModeTitleText}"
+                             IsChecked="{Binding IsAutoModeSelected}"
+                             Classes="mode-tab"/>
+                <RadioButton GroupName="CalibrationManagerModeGroup"
+                             Content="{Binding StereoOnlyModeTitleText}"
+                             IsChecked="{Binding IsStereoOnlyModeSelected}"
+                             Classes="mode-tab"/>
+                <RadioButton GroupName="CalibrationManagerModeGroup"
+                             Content="{Binding SingleCameraModeTitleText}"
+                             IsChecked="{Binding IsSingleCameraModeSelected}"
+                             Classes="mode-tab"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Row 2: Active Info Line -->
+        <TextBlock Grid.Row="2"
+                   Text="{Binding CurrentActiveInfoText}"
+                   Foreground="{StaticResource TextMutedBrush}"
+                   FontSize="12"
+                   Margin="4,0,0,8"/>
+
+        <!-- Row 3: Two Columns - Calibrations + Sessions -->
+        <Grid Grid.Row="3" ColumnDefinitions="*,*" ColumnSpacing="14">
+
+            <!-- Left Column: Calibrations -->
+            <Border Grid.Column="0" Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="12">
+                <Grid RowDefinitions="Auto,*,Auto">
+                    <TextBlock Grid.Row="0"
+                               Text="{Binding CalibrationsColumnTitleText}"
+                               Foreground="{StaticResource TextLightBrush}"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,8"/>
+                    <ListBox Grid.Row="1"
+                             ItemsSource="{Binding CurrentCalibrations}"
+                             SelectedItem="{Binding SelectedCalibration}"
+                             MinHeight="120">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,2">
+                                    <TextBlock Grid.Column="0" Text="&#x2713; " Foreground="{StaticResource AccentBrush}"
+                                               IsVisible="{Binding IsActive}" FontWeight="Bold"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding FileName}"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding CreatedAt, StringFormat='{}{0:yyyy-MM-dd}'}"
+                                               FontSize="11"
+                                               Foreground="{StaticResource TextMutedBrush}"
+                                               VerticalAlignment="Center"
+                                               Margin="8,0,0,0"/>
+                                    <TextBlock Grid.Column="3"
+                                               Text="{Binding FileSizeBytes, StringFormat='{}{0:N0} B'}"
+                                               FontSize="11"
+                                               Foreground="{StaticResource TextMutedBrush}"
+                                               VerticalAlignment="Center"
+                                               Margin="8,0,0,0"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <WrapPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,0">
+                        <Button Content="{Binding SetActiveCalibrationButtonText}"
+                                Command="{Binding SetActiveCalibrationForCurrentModeCommand}"
+                                Classes="primary"
+                                Margin="0,0,8,0"/>
+                        <Button Content="{Binding LoadCalibrationButtonText}"
+                                Command="{Binding LoadSelectedCalibrationCommand}"
+                                Classes="secondary"
+                                Margin="0,0,8,0"/>
+                        <Button Content="{Binding DeleteCalibrationButtonText}"
+                                Command="{Binding DeleteSelectedCalibrationCommand}"
+                                Classes="secondary"/>
+                    </WrapPanel>
+                </Grid>
+            </Border>
+
+            <!-- Right Column: Sessions -->
+            <Border Grid.Column="1" Background="{StaticResource SurfaceBrush}" CornerRadius="8" Padding="12">
+                <Grid RowDefinitions="Auto,*,Auto">
+                    <TextBlock Grid.Row="0"
+                               Text="{Binding SessionsColumnTitleText}"
+                               Foreground="{StaticResource TextLightBrush}"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,8"/>
+                    <ListBox Grid.Row="1"
+                             ItemsSource="{Binding CurrentSessions}"
+                             SelectedItem="{Binding SelectedSession}"
+                             MinHeight="120">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,2">
+                                    <TextBlock Grid.Column="0" Text="&#x2713; " Foreground="{StaticResource AccentBrush}"
+                                               IsVisible="{Binding IsActive}" FontWeight="Bold"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding SessionId}"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding CaptureCountDisplay}"
+                                               FontSize="12" VerticalAlignment="Center"
+                                               Margin="8,0,0,0"
+                                               Classes.completed="{Binding IsCompleted}">
+                                        <TextBlock.Styles>
+                                            <Style Selector="TextBlock">
+                                                <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+                                            </Style>
+                                            <Style Selector="TextBlock.completed">
+                                                <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
+                                            </Style>
+                                        </TextBlock.Styles>
+                                    </TextBlock>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <WrapPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,0">
+                        <Button Content="{Binding SetActiveSessionButtonText}"
+                                Command="{Binding SetActiveSessionForCurrentModeCommand}"
+                                Classes="primary"
+                                Margin="0,0,8,0"/>
+                        <Button Content="{Binding DeleteSessionButtonText}"
+                                Command="{Binding DeleteSelectedSessionForCurrentModeCommand}"
+                                Classes="secondary"/>
+                    </WrapPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Row 4: Details Panel -->
+        <Border Grid.Row="4"
+                Background="{StaticResource SurfaceBrush}"
+                CornerRadius="8"
+                Padding="16"
+                Margin="0,8,0,0"
+                IsVisible="{Binding LoadedCalibration, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <Grid ColumnDefinitions="*,*,*,*">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <TextBlock Text="{Binding ReprojectionErrorLabelText}"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               FontSize="12"/>
+                    <TextBlock Text="{Binding LoadedCalibration.ReprojectionError, StringFormat='{}{0:F3} px'}"
+                               Foreground="{StaticResource AccentBrush}"
+                               FontSize="18"
+                               FontWeight="SemiBold"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Spacing="4">
+                    <TextBlock Text="{Binding QualityLabelText}"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               FontSize="12"/>
+                    <TextBlock Text="{Binding LoadedCalibration.Quality}"
+                               FontSize="18"
+                               FontWeight="SemiBold"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Spacing="4">
+                    <TextBlock Text="{Binding ImagePairsLabelText}"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               FontSize="12"/>
+                    <TextBlock Text="{Binding LoadedCalibration.ImagePairCount}"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               FontSize="18"
+                               FontWeight="SemiBold"/>
+                </StackPanel>
+                <StackPanel Grid.Column="3" Spacing="4">
+                    <TextBlock Text="{Binding ResolutionLabelText}"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               FontSize="12"/>
+                    <TextBlock Foreground="{StaticResource TextPrimaryBrush}"
+                               FontSize="18"
+                               FontWeight="SemiBold">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}{0}x{1}">
+                                <Binding Path="LoadedCalibration.ImageSize.Width"/>
+                                <Binding Path="LoadedCalibration.ImageSize.Height"/>
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Row 5: Empty State -->
+        <Border Grid.Row="3"
+                IsVisible="{Binding !HasCurrentModeData}"
+                Padding="16">
+            <StackPanel VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Spacing="12">
+                <TextBlock Text="&#x1F4CB;"
+                           FontSize="48"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding NoDataText}"
+                           Foreground="{StaticResource TextDisabledBrush}"
+                           FontStyle="Italic"
+                           FontSize="14"
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

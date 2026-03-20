@@ -1,0 +1,59 @@
+## .NET / C# ##
+
+# Build outputs
+bin/
+obj/
+artifacts/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# NuGet
+*.nupkg
+*.snupkg
+project.lock.json
+.nuget/
+
+# Publish output
+publish/
+
+# Avalonia Designer
+**/*.axaml.cs
+
+# Documentation generation
+xml/
+
+# Logs
+*.log
+logs/
+
+# OS
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# Environment / secrets
+*.env
+appsettings.*.json
+!appsettings.json

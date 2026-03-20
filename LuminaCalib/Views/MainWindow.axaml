@@ -1,0 +1,634 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:LuminaCalib.ViewModels"
+        xmlns:views="using:LuminaCalib.Views"
+        xmlns:controls="using:LuminaCalib.Controls"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="800"
+        x:Class="LuminaCalib.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="LuminaCalib"
+        Width="1280"
+        Height="800"
+        MinWidth="1024"
+        MinHeight="700"
+        Icon="/Assets/icon.ico"
+        Background="{StaticResource BackgroundBrush}"
+        WindowStartupLocation="CenterScreen">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <!-- Root container holds both main content and overlay -->
+    <Grid>
+        <!-- Main Application Content -->
+        <Grid RowDefinitions="Auto,Auto,*,Auto">
+        
+            <!-- Title Bar -->
+        <Border Grid.Row="0" 
+                Background="{StaticResource TitleBarBrush}" 
+                Padding="16,12"
+                BorderBrush="{StaticResource BorderSubtleBrush}"
+                BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <!-- Logo & Title -->
+                <StackPanel Grid.Column="0" 
+                            Orientation="Horizontal" 
+                            Spacing="12">
+                    <Border Width="32" Height="32" 
+                            Background="{StaticResource AccentBrush}" 
+                            CornerRadius="6">
+                        <TextBlock Text="L" 
+                                   FontSize="20" 
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource BackgroundBrush}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="LuminaCalib" 
+                               FontSize="20" 
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+                
+                <!-- Navigation Tabs -->
+                <ScrollViewer Grid.Column="1"
+                              HorizontalAlignment="Stretch"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Disabled">
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                Spacing="4">
+                        <RadioButton GroupName="NavGroup" 
+                                     Content="{Binding CalibrationTabText}" 
+                                     IsChecked="{Binding IsCalibrationView}"
+                                     AutomationProperties.Name="{Binding CalibrationTabText}"
+                                     Classes="nav-tab"/>
+                        <RadioButton GroupName="NavGroup" 
+                                     Content="{Binding DepthMapTabText}" 
+                                     IsChecked="{Binding IsDepthMapView}"
+                                     AutomationProperties.Name="{Binding DepthMapTabText}"
+                                     Classes="nav-tab"/>
+                        <RadioButton GroupName="NavGroup" 
+                                     Content="{Binding ManagerTabText}" 
+                                     IsChecked="{Binding IsHistoryView}"
+                                     AutomationProperties.Name="{Binding ManagerTabText}"
+                                     Classes="nav-tab"/>
+                        <RadioButton GroupName="NavGroup" 
+                                     Content="{Binding BoardGeneratorTabText}" 
+                                     IsChecked="{Binding IsBoardGeneratorView}"
+                                     AutomationProperties.Name="{Binding BoardGeneratorTabText}"
+                                     Classes="nav-tab"/>
+                        <RadioButton GroupName="NavGroup" 
+                                     Content="{Binding LogTabText}" 
+                                     IsChecked="{Binding IsLogView}"
+                                     AutomationProperties.Name="{Binding LogTabText}"
+                                     Classes="nav-tab"/>
+                    </StackPanel>
+                </ScrollViewer>
+                
+                <!-- About & Settings Buttons -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
+                    <Button Command="{Binding OpenAboutCommand}"
+                            Background="Transparent"
+                            Foreground="{StaticResource TextSecondaryBrush}"
+                            Padding="8"
+                            AutomationProperties.Name="About"
+                            ToolTip.Tip="{Binding AboutTooltipText}">
+                        <PathIcon Data="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z"
+                                  Width="20" Height="20"/>
+                    </Button>
+                    <Button Command="{Binding OpenSettingsCommand}"
+                            Background="Transparent"
+                            Foreground="{StaticResource TextSecondaryBrush}"
+                            Padding="8"
+                            AutomationProperties.Name="Settings"
+                            ToolTip.Tip="{Binding SettingsTooltipText}">
+                        <PathIcon Data="M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8M12,10A2,2 0 0,0 10,12A2,2 0 0,0 12,14A2,2 0 0,0 14,12A2,2 0 0,0 12,10M10,22C9.75,22 9.54,21.82 9.5,21.58L9.13,18.93C8.5,18.68 7.96,18.34 7.44,17.94L4.95,18.95C4.73,19.03 4.46,18.95 4.34,18.73L2.34,15.27C2.21,15.05 2.27,14.78 2.46,14.63L4.57,12.97L4.5,12L4.57,11L2.46,9.37C2.27,9.22 2.21,8.95 2.34,8.73L4.34,5.27C4.46,5.05 4.73,4.96 4.95,5.05L7.44,6.05C7.96,5.66 8.5,5.32 9.13,5.07L9.5,2.42C9.54,2.18 9.75,2 10,2H14C14.25,2 14.46,2.18 14.5,2.42L14.87,5.07C15.5,5.32 16.04,5.66 16.56,6.05L19.05,5.05C19.27,4.96 19.54,5.05 19.66,5.27L21.66,8.73C21.79,8.95 21.73,9.22 21.54,9.37L19.43,11L19.5,12L19.43,13L21.54,14.63C21.73,14.78 21.79,15.05 21.66,15.27L19.66,18.73C19.54,18.95 19.27,19.04 19.05,18.95L16.56,17.95C16.04,18.34 15.5,18.68 14.87,18.93L14.5,21.58C14.46,21.82 14.25,22 14,22H10Z"
+                                Width="20" Height="20"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+        
+        <!-- Workflow Stepper -->
+        <Border Grid.Row="1" 
+                Padding="16,12"
+                Background="{StaticResource BackgroundBrush}"
+                IsVisible="{Binding IsCalibrationView}">
+            <Grid ColumnDefinitions="*,Auto,*">
+                <controls:WorkflowStepper Grid.Column="1" 
+                                          CurrentStep="{Binding CurrentStep}"
+                                          SetupText="{Binding WorkflowSetupText}"
+                                          CaptureText="{Binding WorkflowCaptureText}"
+                                          CalibrateText="{Binding WorkflowCalibrateText}"
+                                          SaveText="{Binding WorkflowSaveText}"/>
+            </Grid>
+        </Border>
+        
+        <!-- Main Content Area -->
+        <Grid Grid.Row="2" Margin="16,0,16,16">
+            
+            <!-- Calibration View -->
+            <Grid IsVisible="{Binding IsCalibrationView}" 
+                  RowDefinitions="Auto,*,Auto">
+                
+                <!-- Calibration Loading Overlay -->
+                <controls:LoadingOverlay Grid.RowSpan="3"
+                                         ZIndex="10"
+                                         IsLoading="{Binding IsCalibrating}"
+                                         LoadingText="{Binding CalibratingText}"/>
+                
+                <!-- Mode Selector -->
+                <Border Grid.Row="0" 
+                        Background="{StaticResource SurfaceBrush}" 
+                        CornerRadius="8"
+                        Padding="16,12"
+                        Margin="0,0,0,12">
+                    <WrapPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding ModeLabelText}" 
+                                   Foreground="{StaticResource TextSecondaryBrush}" 
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,24,0"/>
+                        <RadioButton x:Name="AutoModeRadioButton"
+                                     GroupName="MainCalibrationModeGroup" 
+                                     Content="{Binding AutoModeText}" 
+                                     IsChecked="{Binding IsAutoMode}"
+                                     IsEnabled="{Binding CanChangeModeSelection}"
+                                     Margin="0,0,24,0"/>
+                        <RadioButton x:Name="StereoOnlyModeRadioButton"
+                                     GroupName="MainCalibrationModeGroup" 
+                                     Content="{Binding StereoOnlyModeText}" 
+                                     IsChecked="{Binding IsStereoOnlyMode}"
+                                     IsEnabled="{Binding CanChangeModeSelection}"
+                                     Margin="0,0,24,0"/>
+                        <RadioButton x:Name="SingleCameraModeRadioButton"
+                                     GroupName="MainCalibrationModeGroup" 
+                                     Content="{Binding SingleCameraModeText}" 
+                                     IsChecked="{Binding IsSingleCameraMode}"
+                                     IsEnabled="{Binding CanChangeModeSelection}"/>
+                    </WrapPanel>
+                </Border>
+                
+                <!-- Video Stage -->
+                <Grid x:Name="VideoStageGrid" Grid.Row="1" ColumnDefinitions="*,12,*">
+                    <!-- Left Camera -->
+                    <Border Grid.Column="0" 
+                            Classes="video-container">
+                        <Grid>
+                            <controls:VideoView x:Name="LeftVideoView"
+                                                AutomationProperties.Name="Left Camera View"
+                                                NoSignalText="{Binding VideoNoSignalText}"
+                                                ConnectingText="{Binding VideoConnectingText}"
+                                                ErrorText="{Binding VideoErrorText}"
+                                                HoldStillText="{Binding VideoHoldStillText}"
+                                                CapturedText="{Binding VideoCapturedText}"/>
+                            <TextBlock Text="{Binding LeftCameraOverlayText}" 
+                                       Foreground="{StaticResource TextDisabledBrush}"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Margin="12,8"
+                                       VerticalAlignment="Top"
+                                       HorizontalAlignment="Left"/>
+                            <!-- Pattern detection indicator -->
+                            <Ellipse Width="12" Height="12"
+                                     Margin="12,8"
+                                     VerticalAlignment="Top"
+                                     HorizontalAlignment="Right"
+                                     IsVisible="{Binding AutoCapturing}">
+                                <Ellipse.Fill>
+                                    <SolidColorBrush Color="{Binding PatternDetectedLeft, 
+                                        Converter={x:Static controls:BoolToColorConverter.Instance}}"/>
+                                </Ellipse.Fill>
+                            </Ellipse>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Right Camera -->
+                    <Border Grid.Column="2" 
+                            Classes="video-container">
+                        <Grid>
+                            <controls:VideoView x:Name="RightVideoView"
+                                                AutomationProperties.Name="Right Camera View"
+                                                NoSignalText="{Binding VideoNoSignalText}"
+                                                ConnectingText="{Binding VideoConnectingText}"
+                                                ErrorText="{Binding VideoErrorText}"
+                                                HoldStillText="{Binding VideoHoldStillText}"
+                                                CapturedText="{Binding VideoCapturedText}"/>
+                            <TextBlock Text="{Binding RightCameraOverlayText}" 
+                                       Foreground="{StaticResource TextDisabledBrush}"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Margin="12,8"
+                                       VerticalAlignment="Top"
+                                       HorizontalAlignment="Left"/>
+                            <!-- Pattern detection indicator -->
+                            <Ellipse Width="12" Height="12"
+                                     Margin="12,8"
+                                     VerticalAlignment="Top"
+                                     HorizontalAlignment="Right"
+                                     IsVisible="{Binding AutoCapturing}">
+                                <Ellipse.Fill>
+                                    <SolidColorBrush Color="{Binding PatternDetectedRight, 
+                                        Converter={x:Static controls:BoolToColorConverter.Instance}}"/>
+                                </Ellipse.Fill>
+                            </Ellipse>
+                        </Grid>
+                    </Border>
+                </Grid>
+                
+                <!-- Control Panel -->
+                <Border Grid.Row="2" 
+                        Background="{StaticResource SurfaceBrush}" 
+                        CornerRadius="8"
+                        Padding="16"
+                        Margin="0,12,0,0">
+                    <Grid RowDefinitions="Auto,Auto"
+                          ColumnDefinitions="Auto,*,Auto">
+                        <!-- Progress Info -->
+                        <StackPanel Grid.Column="0" 
+                                    Orientation="Horizontal" 
+                                    Spacing="16">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="{Binding CapturedLabelText}" 
+                                           Foreground="{StaticResource TextSecondaryBrush}" 
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding CapturedPairsCount}" 
+                                           Foreground="{StaticResource AccentBrush}" 
+                                           FontWeight="SemiBold"
+                                           FontSize="18"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="/" 
+                                           Foreground="{StaticResource TextDisabledBrush}" 
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding RequiredPairs}" 
+                                           Foreground="{StaticResource TextSecondaryBrush}" 
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            
+                            <Border Width="1" Background="{StaticResource DividerBrush}"/>
+                            
+                            <CheckBox Content="{Binding ShowRectifiedText}"
+                                      IsChecked="{Binding ShowRectified}"/>
+                        </StackPanel>
+                        
+                        <!-- Main Action Buttons -->
+                        <StackPanel Grid.Column="2"
+                                    Orientation="Horizontal" 
+                                    Spacing="12">
+                            <!-- Connect: visible when NOT connecting AND обе камеры отключены -->
+                            <Button Content="{Binding ConnectCamerasText}"
+                                    Command="{Binding ConnectCamerasCommand}"
+                                    Classes="secondary"
+                                    AutomationProperties.Name="{Binding ConnectCamerasText}"
+                                    IsEnabled="{Binding CanUseCameraControls}"
+                                    IsVisible="{Binding CanShowConnectButton}"/>
+                            <!-- Cancel: visible ONLY during connection process -->
+                            <Button Content="{Binding CancelConnectionText}"
+                                    Command="{Binding CancelCameraConnectionCommand}"
+                                    Classes="danger"
+                                    AutomationProperties.Name="{Binding CancelConnectionText}"
+                                    IsVisible="{Binding IsConnectingCameras}"/>
+                            <!-- Disconnect: visible when подключена хотя бы одна камера и NOT connecting -->
+                            <Button Content="{Binding DisconnectText}"
+                                    Command="{Binding DisconnectCamerasCommand}"
+                                    Classes="secondary"
+                                    AutomationProperties.Name="{Binding DisconnectText}"
+                                    IsEnabled="{Binding CanUseCameraControls}"
+                                    IsVisible="{Binding CanShowDisconnectButton}"/>
+                            <Button Content="{Binding DetectionToggleText}"
+                                    Command="{Binding ToggleDetectionCommand}"
+                                    IsVisible="{Binding CanShowDetectionButton}"
+                                    IsEnabled="{Binding CanToggleDetection}"
+                                    Classes="primary"
+                                    Margin="0,0,8,0"
+                                    AutomationProperties.Name="{Binding DetectionToggleText}"/>
+                            <Button Content="{Binding CaptureFrameText}"
+                                    Command="{Binding CaptureFrameCommand}"
+                                    Classes="primary"
+                                    AutomationProperties.Name="{Binding CaptureFrameText}"
+                                    IsEnabled="{Binding CanCapture}"
+                                    IsVisible="{Binding CanShowCaptureButton}"/>
+                            <Button Content="{Binding CalibrateActionText}"
+                                    Command="{Binding CalibrateCommand}"
+                                    Classes="primary"
+                                    AutomationProperties.Name="{Binding CalibrateActionText}"
+                                    IsEnabled="{Binding CanCalibrate}"/>
+                        </StackPanel>
+
+                        <Border Grid.Row="1"
+                                Grid.ColumnSpan="3"
+                                Margin="0,14,0,0"
+                                Padding="12,10"
+                                Background="{StaticResource TitleBarBrush}"
+                                CornerRadius="6">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Grid.Column="0"
+                                            Spacing="4">
+                                    <TextBlock Text="{Binding CurrentModeActiveCalibrationText}"
+                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               FontSize="12"/>
+                                    <TextBlock Text="{Binding CurrentModeActiveSessionText}"
+                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               FontSize="12"/>
+                                    <TextBlock Text="{Binding CurrentPatternDescriptorText}"
+                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               FontSize="12"/>
+                                    <TextBlock Text="{Binding CaptureStorageInfoText}"
+                                               Foreground="{StaticResource TextTertiaryBrush}"
+                                               FontSize="11"/>
+                                    <TextBlock Text="{Binding CaptureSessionInfoText}"
+                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               FontSize="12"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1"
+                                            Orientation="Horizontal"
+                                            Spacing="10"
+                                            VerticalAlignment="Center">
+                                    <CheckBox Content="{Binding UseSavedSessionForCalibrationText}"
+                                              IsChecked="{Binding UseSavedSessionForCalibration}"
+                                              IsEnabled="{Binding CanChangeModeSelection}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Grid>
+            
+            <!-- Board Generator View -->
+            <Panel IsVisible="{Binding IsBoardGeneratorView}">
+                <views:BoardGeneratorView DataContext="{Binding BoardGeneratorVm}"/>
+            </Panel>
+            
+            <!-- Calibration Manager View -->
+            <Panel IsVisible="{Binding IsHistoryView}">
+                <views:CalibrationManagerView DataContext="{Binding CalibrationManagerVm}" />
+            </Panel>
+
+            <!-- Log View -->
+            <Border IsVisible="{Binding IsLogView}"
+                    Background="{StaticResource SurfaceBrush}"
+                    CornerRadius="8"
+                    Padding="16">
+                <Grid RowDefinitions="Auto,*"
+                      ColumnDefinitions="*,Auto">
+                    <TextBlock Grid.Row="0"
+                               Grid.Column="0"
+                               Text="{Binding LogHeaderText}"
+                               Foreground="{StaticResource TextBrightBrush}"
+                               FontWeight="SemiBold"
+                               FontSize="14"
+                               Margin="0,0,0,10"/>
+                    <Button Grid.Row="0"
+                            Grid.Column="1"
+                            Content="{Binding ClearLogText}"
+                            Command="{Binding ClearLogCommand}"
+                            Classes="secondary"
+                            Padding="10,4"/>
+                    <Border Grid.Row="1"
+                            Grid.ColumnSpan="2"
+                            Background="{StaticResource SurfaceDarkBrush}"
+                            CornerRadius="6"
+                            BorderBrush="{StaticResource BorderFaintBrush}"
+                            BorderThickness="1"
+                            Padding="10">
+                        <Grid>
+                            <TextBlock Text="{Binding LogEmptyText}"
+                                       Foreground="{StaticResource TextDisabledBrush}"
+                                       FontSize="12"
+                                       FontStyle="Italic"
+                                       IsVisible="{Binding !HasLogEntries}"/>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          IsVisible="{Binding HasLogEntries}">
+                                <ItemsControl ItemsSource="{Binding LogEntries}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}"
+                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                       FontSize="11"
+                                                       FontFamily="Consolas"
+                                                       TextWrapping="Wrap"
+                                                       Margin="0,0,0,4"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Depth Map View -->
+            <Panel IsVisible="{Binding IsDepthMapView}">
+                <Grid RowDefinitions="Auto,*">
+                    <Border Grid.Row="0"
+                            Background="{StaticResource SurfaceBrush}"
+                            CornerRadius="8"
+                            Padding="14,12"
+                            Margin="0,0,0,12">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Grid.Column="0"
+                                        Spacing="4">
+                                <TextBlock Text="{Binding DepthMapCameraStatusLabelText}"
+                                           Foreground="{StaticResource TextTertiaryBrush}"
+                                           FontSize="11"/>
+                                <TextBlock Text="{Binding DepthMapCameraStatusText}"
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           FontSize="13"
+                                           FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding DepthMapActiveCalibrationText}"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           FontSize="12"
+                                           Margin="0,4,0,0"/>
+                                <TextBlock Text="{Binding DepthMapSharedCameraHintText}"
+                                           Foreground="{StaticResource TextTertiaryBrush}"
+                                           FontSize="11"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1"
+                                        Orientation="Horizontal"
+                                        Spacing="8"
+                                        VerticalAlignment="Center">
+                                <Button Content="{Binding ConnectCamerasText}"
+                                        Command="{Binding ConnectCamerasCommand}"
+                                        Classes="secondary"
+                                        AutomationProperties.Name="{Binding ConnectCamerasText}"
+                                        IsEnabled="{Binding CanUseCameraControls}"
+                                        IsVisible="{Binding CanShowConnectButton}"/>
+                                <Button Content="{Binding CancelConnectionText}"
+                                        Command="{Binding CancelCameraConnectionCommand}"
+                                        Classes="danger"
+                                        AutomationProperties.Name="{Binding CancelConnectionText}"
+                                        IsVisible="{Binding IsConnectingCameras}"/>
+                                <Button Content="{Binding DisconnectText}"
+                                        Command="{Binding DisconnectCamerasCommand}"
+                                        Classes="secondary"
+                                        AutomationProperties.Name="{Binding DisconnectText}"
+                                        IsEnabled="{Binding CanUseCameraControls}"
+                                        IsVisible="{Binding CanShowDisconnectButton}"/>
+                                <Button Content="{Binding DepthMapOpenCalibrationManagerText}"
+                                        Command="{Binding OpenDepthMapCalibrationManagerCommand}"
+                                        Classes="primary"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <views:DepthMapView Grid.Row="1" DataContext="{Binding DepthMapVm}"/>
+                </Grid>
+            </Panel>
+        </Grid>
+        
+        <!-- Status Bar -->
+        <Border Grid.Row="3" 
+                Background="{StaticResource TitleBarBrush}" 
+                Padding="16,8"
+                BorderBrush="{StaticResource BorderSubtleBrush}"
+                BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                <controls:StatusIndicator Grid.Column="0" 
+                                          Label="{Binding LeftStatusLabelText}" 
+                                          IsConnected="{Binding LeftCameraConnected}"
+                                          Fps="{Binding LeftCameraFps}"
+                                          ExtraInfo="{Binding LeftCameraExtraInfoText}"
+                                          DisconnectedText="{Binding StatusDisconnectedText}"
+                                          FpsUnitText="{Binding StatusFpsUnitText}"
+                                          AutomationProperties.Name="{Binding LeftStatusLabelText}"
+                                          Margin="0,0,24,0"/>
+                <controls:StatusIndicator Grid.Column="1" 
+                                          Label="{Binding RightStatusLabelText}" 
+                                          IsConnected="{Binding RightCameraConnected}"
+                                          Fps="{Binding RightCameraFps}"
+                                          ExtraInfo="{Binding RightCameraExtraInfoText}"
+                                          DisconnectedText="{Binding StatusDisconnectedText}"
+                                          FpsUnitText="{Binding StatusFpsUnitText}"
+                                          AutomationProperties.Name="{Binding RightStatusLabelText}"
+                                          Margin="0,0,24,0"/>
+                
+                <!-- Calibration Status -->
+                <StackPanel Grid.Column="3" 
+                            Orientation="Horizontal" 
+                            Spacing="8">
+                    <Ellipse Width="8" Height="8"
+                             Fill="{Binding CalibrationStatusColor}"/>
+                    <TextBlock Text="{Binding CalibrationStatusText}"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               FontSize="12"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+        </Grid>
+
+        <!-- Toast Notifications Container -->
+        <ItemsControl ItemsSource="{Binding Notifications}"
+                      ZIndex="500"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Bottom"
+                      Margin="0,0,16,60">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <controls:ToastNotification Notification="{Binding}"/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    
+        <!-- Settings Overlay -->
+        <Panel x:Name="SettingsOverlay"
+               IsVisible="False"
+               ZIndex="1000">
+        <!-- Semi-transparent backdrop - click to close -->
+        <Panel x:Name="SettingsBackdrop"
+               Background="{StaticResource OverlayBackdropBrush}"
+               Opacity="0"
+               PointerPressed="OnBackdropPressed">
+            <Panel.Transitions>
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+                </Transitions>
+            </Panel.Transitions>
+        </Panel>
+        
+        <!-- Settings Panel -->
+        <Border x:Name="SettingsCard"
+                Background="{StaticResource TitleBarBrush}"
+                CornerRadius="12"
+                MaxWidth="800"
+                MaxHeight="700"
+                Margin="40"
+                BoxShadow="0 8 32 0 #40000000"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Opacity="0"
+                RenderTransform="translate(0px, 20px)">
+            <Border.Transitions>
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.25" Easing="CubicEaseOut"/>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.25" Easing="CubicEaseOut"/>
+                </Transitions>
+            </Border.Transitions>
+            
+            <Grid RowDefinitions="Auto,*"
+                  KeyboardNavigation.TabNavigation="Cycle">
+                <!-- Header with Close Button -->
+                <Border Grid.Row="0"
+                        Background="{StaticResource SurfaceBrush}"
+                        Padding="24,16"
+                        CornerRadius="12,12,0,0"
+                        BorderBrush="{StaticResource SurfaceLightBrush}"
+                        BorderThickness="0,0,0,1">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                            <PathIcon Data="M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8M12,10A2,2 0 0,0 10,12A2,2 0 0,0 12,14A2,2 0 0,0 14,12A2,2 0 0,0 12,10M10,22C9.75,22 9.54,21.82 9.5,21.58L9.13,18.93C8.5,18.68 7.96,18.34 7.44,17.94L4.95,18.95C4.73,19.03 4.46,18.95 4.34,18.73L2.34,15.27C2.21,15.05 2.27,14.78 2.46,14.63L4.57,12.97L4.5,12L4.57,11L2.46,9.37C2.27,9.22 2.21,8.95 2.34,8.73L4.34,5.27C4.46,5.05 4.73,4.96 4.95,5.05L7.44,6.05C7.96,5.66 8.5,5.32 9.13,5.07L9.5,2.42C9.54,2.18 9.75,2 10,2H14C14.25,2 14.46,2.18 14.5,2.42L14.87,5.07C15.5,5.32 16.04,5.66 16.56,6.05L19.05,5.05C19.27,4.96 19.54,5.05 19.66,5.27L21.66,8.73C21.79,8.95 21.73,9.22 21.54,9.37L19.43,11L19.5,12L19.43,13L21.54,14.63C21.73,14.78 21.79,15.05 21.66,15.27L19.66,18.73C19.54,18.95 19.27,19.04 19.05,18.95L16.56,17.95C16.04,18.34 15.5,18.68 14.87,18.93L14.5,21.58C14.46,21.82 14.25,22 14,22H10Z"
+                                      Width="24" Height="24"
+                                      Foreground="{StaticResource AccentBrush}"
+                                      VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding SettingsHeaderText}"
+                                       FontSize="20"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                        
+                        <Button Grid.Column="1"
+                                Command="{Binding OpenSettingsCommand}"
+                                Background="Transparent"
+                                Foreground="{StaticResource TextSecondaryBrush}"
+                                Padding="8"
+                                ToolTip.Tip="{Binding CloseTooltipText}">
+                            <PathIcon Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
+                                      Width="20" Height="20"/>
+                        </Button>
+                    </Grid>
+                </Border>
+                
+                <!-- Settings Content -->
+                <views:SettingsView Grid.Row="1"
+                                    DataContext="{Binding SettingsVm}"/>
+            </Grid>
+        </Border>
+    </Panel>
+    </Grid>
+    
+    <Window.Styles>
+        <!-- Navigation Tab Style -->
+        <Style Selector="RadioButton.nav-tab">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="RadioButton.nav-tab:checked">
+            <Setter Property="Background" Value="{StaticResource SurfaceLightBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        </Style>
+        <Style Selector="RadioButton.nav-tab:pointerover">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+        </Style>
+    </Window.Styles>
+</Window>

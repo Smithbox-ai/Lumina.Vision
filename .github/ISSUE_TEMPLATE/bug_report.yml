@@ -1,0 +1,71 @@
+name: Bug Report
+description: Report a bug or unexpected behavior in LuminaCalib
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a bug! Please fill in as much detail as possible.
+
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: A clear and concise description of the bug.
+      placeholder: "e.g. Application crashes when connecting to an RTSP stream"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      placeholder: |
+        1. Open the application
+        2. Configure camera with URL '...'
+        3. Click Connect
+        4. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: Include error messages, logs, or screenshots if available.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version / Commit
+      placeholder: "e.g. main @ abc1234"
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      options:
+        - Windows 10
+        - Windows 11
+        - Ubuntu 22.04
+        - Ubuntu 24.04
+        - Other Linux
+      multiple: true
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Additional Environment Info
+      description: GPU model, .NET version, camera model/URL scheme, CUDA version, etc.
+      placeholder: "e.g. NVIDIA RTX 3080, .NET 10.0.3, Hikvision DS-2CD, no CUDA"

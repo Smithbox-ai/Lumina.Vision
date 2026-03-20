@@ -1,0 +1,221 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LuminaCalib.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="using:LuminaCalib.Controls"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700"
+             x:Class="LuminaCalib.Views.BoardGeneratorView"
+             x:DataType="vm:BoardGeneratorViewModel">
+
+    <Design.DataContext>
+        <vm:BoardGeneratorViewModel/>
+    </Design.DataContext>
+
+    <Grid ColumnDefinitions="Auto,*">
+        
+        <!-- Settings Panel -->
+        <Border Grid.Column="0" 
+                Background="{StaticResource SurfaceBrush}" 
+                CornerRadius="8"
+                Padding="16"
+                Margin="0,0,16,0"
+                MinWidth="280"
+                MaxWidth="360">
+            <ScrollViewer Padding="0,0,12,0"
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="20">
+                    
+                    <!-- Header -->
+                    <TextBlock Text="{Binding HeaderText}" 
+                               FontSize="18" 
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource AccentBrush}"/>
+                    
+                    <!-- Board Type -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{Binding BoardTypeLabelText}" Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <ComboBox ItemsSource="{Binding AvailableBoardTypes}"
+                                  SelectedItem="{Binding BoardType}"
+                                  HorizontalAlignment="Stretch"/>
+                    </StackPanel>
+                    
+                    <!-- Grid Size -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{Binding GridSizeLabelText}" Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <Grid ColumnDefinitions="*,Auto,*">
+                            <NumericUpDown Grid.Column="0" 
+                                           Value="{Binding SquaresX}"
+                                           Minimum="3"
+                                           Maximum="20"
+                                           FormatString="0"/>
+                            <TextBlock Grid.Column="1" 
+                                       Text="x" 
+                                       Foreground="{StaticResource TextDisabledBrush}"
+                                       Margin="8,0"
+                                       VerticalAlignment="Center"/>
+                            <NumericUpDown Grid.Column="2" 
+                                           Value="{Binding SquaresY}"
+                                           Minimum="3"
+                                           Maximum="20"
+                                           FormatString="0"/>
+                        </Grid>
+                    </StackPanel>
+                    
+                    <!-- Square Size -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{Binding SquareSizeLabelText}" Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <NumericUpDown Value="{Binding SquareLength}"
+                                       Minimum="5"
+                                       Maximum="100"
+                                       FormatString="0.0"
+                                       Increment="1"/>
+                    </StackPanel>
+                    
+                    <!-- Marker Ratio (ChArUco only) -->
+                    <StackPanel Spacing="8" 
+                                IsVisible="{Binding IsCharucoBoard}">
+                        <TextBlock Foreground="{StaticResource TextSecondaryBrush}">
+                            <Run Text="{Binding MarkerSizeLabelPrefixText}"/>
+                            <Run Text=" "/>
+                            <Run Text="{Binding MarkerLength, StringFormat='{}{0:F1}'}" Foreground="{StaticResource AccentBrush}"/>
+                            <Run Text="{Binding MillimetersUnitText}" Foreground="{StaticResource AccentBrush}"/>
+                            <Run Text=" "/>
+                            <Run Text="{Binding MarkerSizeRatioOpenText}"/>
+                            <Run Text="{Binding MarkerLengthRatio, StringFormat='{}{0:P0}'}"/>
+                            <Run Text="{Binding MarkerSizeRatioCloseText}"/>
+                        </TextBlock>
+                        <Slider Value="{Binding MarkerLengthRatio}"
+                                Minimum="0.5"
+                                Maximum="0.9"
+                                TickFrequency="0.01"/>
+                    </StackPanel>
+                    
+                    <!-- Dictionary (ChArUco only) -->
+                    <StackPanel Spacing="8"
+                                IsVisible="{Binding IsCharucoBoard}">
+                        <TextBlock Text="{Binding ArucoDictionaryLabelText}" Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <ComboBox ItemsSource="{Binding AvailableDictionaries}"
+                                  SelectedItem="{Binding Dictionary}"
+                                  HorizontalAlignment="Stretch"/>
+                    </StackPanel>
+                    
+                    <!-- DPI -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{Binding DpiLabelText}" Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <ComboBox ItemsSource="{Binding AvailableDpis}"
+                                  SelectedItem="{Binding Dpi}"
+                                  HorizontalAlignment="Stretch"/>
+                    </StackPanel>
+                    
+                    <!-- Margin -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{Binding MarginLabelText}" Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <NumericUpDown Value="{Binding Margin}"
+                                       Minimum="0"
+                                       Maximum="200"
+                                       FormatString="0"
+                                       Increment="10"/>
+                    </StackPanel>
+                    
+                    <Separator Background="{StaticResource DividerBrush}" Height="1"/>
+                    
+                    <!-- Physical Size Display -->
+                    <Border Background="{StaticResource BackgroundBrush}" 
+                            CornerRadius="6" 
+                            Padding="12">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="{Binding PhysicalSizeLabelText}" 
+                                       Foreground="{StaticResource TextMutedBrush}" 
+                                       FontSize="12"/>
+                            <TextBlock Foreground="{StaticResource TextPrimaryBrush}" FontSize="16" FontWeight="SemiBold">
+                                <Run Text="{Binding BoardWidthMm, StringFormat='{}{0:F0}'}"/>
+                                <Run Text="{Binding MillimetersUnitText}"/>
+                                <Run Text=" x "/>
+                                <Run Text="{Binding BoardHeightMm, StringFormat='{}{0:F0}'}"/>
+                                <Run Text="{Binding MillimetersUnitText}"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Generate Button -->
+                    <Button Content="{Binding GeneratePreviewButtonText}"
+                            Command="{Binding GeneratePreviewCommand}"
+                            Classes="primary"
+                            HorizontalAlignment="Stretch"
+                            IsEnabled="{Binding !IsGenerating}"/>
+                    
+                    <!-- Apply to Calibration -->
+                    <Button Content="{Binding ApplyToCalibrationText}"
+                            Command="{Binding ApplyToCalibrationCommand}"
+                            Classes="secondary"
+                            HorizontalAlignment="Stretch"
+                            Padding="12,8"/>
+                    
+                    <Separator Background="{StaticResource DividerBrush}" Height="1"/>
+                    
+                    <!-- Export Buttons -->
+                    <TextBlock Text="{Binding ExportHeaderText}" 
+                               Foreground="{StaticResource TextSecondaryBrush}" 
+                               FontWeight="SemiBold"/>
+                    
+                    <StackPanel Spacing="8">
+                        <Button Content="{Binding SaveAsPngButtonText}"
+                                Command="{Binding SaveAsPngCommand}"
+                                Classes="secondary"
+                                HorizontalAlignment="Stretch"/>
+                        <Button Content="{Binding SaveAsPdfButtonText}"
+                                Command="{Binding SaveAsPdfCommand}"
+                                Classes="secondary"
+                                HorizontalAlignment="Stretch"/>
+                        <Button Content="{Binding SaveSpecificationButtonText}"
+                                Command="{Binding SaveSpecificationCommand}"
+                                Classes="secondary"
+                                HorizontalAlignment="Stretch"/>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+        
+        <!-- Preview Panel -->
+        <Border Grid.Column="1" 
+                Background="{StaticResource VideoBackgroundBrush}" 
+                CornerRadius="8">
+            <Grid RowDefinitions="*,Auto">
+                
+                <!-- Preview Image -->
+                <Border Grid.Row="0" 
+                        Background="{StaticResource SurfaceDarkBrush}"
+                        Margin="16">
+                    <Grid>
+                        <Image Source="{Binding PreviewImage}"
+                               Stretch="Uniform"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                        <controls:LoadingOverlay IsLoading="{Binding IsGenerating}"
+                                                 LoadingText="{Binding GeneratingText}"/>
+                    </Grid>
+                </Border>
+                
+                <!-- Status Bar -->
+                <Border Grid.Row="1" 
+                        Background="{StaticResource TitleBarBrush}"
+                        Padding="16,12"
+                        CornerRadius="0,0,8,8">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Grid.Column="0" 
+                                   Text="{Binding StatusMessage}"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   VerticalAlignment="Center"/>
+                        <ProgressBar Grid.Column="1"
+                                     IsIndeterminate="True"
+                                     Width="100"
+                                     IsVisible="{Binding IsGenerating}"/>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
+
