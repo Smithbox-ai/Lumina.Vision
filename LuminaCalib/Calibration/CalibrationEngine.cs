@@ -231,8 +231,8 @@ public sealed class CalibrationEngine : IDisposable
     /// <returns>Результат калибровки с внутренними и внешними параметрами, матрицами ректификации.</returns>
     /// <exception cref="InvalidOperationException">Если добавлено менее 10 стерео-пар или данные несогласованы.</exception>
     /// <remarks>
-    /// Этап 1: параллельная калибровка каждой камеры (intrinsics) — <see cref="CvInvoke.CalibrateCamera"/>.
-    /// Этап 2: стерео-калибровка с <c>FixIntrinsic</c> — <see cref="CvInvoke.StereoCalibrate"/>.
+    /// Этап 1: параллельная калибровка каждой камеры (intrinsics) — <c>CvInvoke.CalibrateCamera</c>.
+    /// Этап 2: стерео-калибровка с <c>FixIntrinsic</c> — <c>CvInvoke.StereoCalibrate</c>.
     /// Этап 3: вычисление ректификации — <see cref="CvInvoke.StereoRectify"/>.
     /// </remarks>
     public CalibrationResult CalibrateFullStereo()

@@ -85,6 +85,7 @@ public sealed class EmguCameraSource : ICameraSource
     /// <param name="noFrameTimeoutMs">Тайм-аут отсутствия кадров (мс). Минимум 250.</param>
     /// <param name="reconnectInitialDelayMs">Начальная задержка переподключения (мс).</param>
     /// <param name="reconnectMaxDelayMs">Максимальная задержка переподключения (мс).</param>
+    /// <param name="connectionTimeoutMs">Тайм-аут подключения (мс). 0 означает ожидать бесконечно.</param>
     /// <param name="matPool">Опциональный пул Mat-объектов для снижения нагрузки на GC при захвате кадров.</param>
     public EmguCameraSource(
         string sourceId,

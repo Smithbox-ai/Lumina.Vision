@@ -43,6 +43,7 @@ public class LoadingOverlay : UserControl
 
     private TextBlock? _textBlock;
 
+    /// <summary>Initialises the overlay and builds the pulsing-dots UI.</summary>
     public LoadingOverlay()
     {
         IsVisible = false;

@@ -17,11 +17,17 @@ namespace LuminaCalib.ViewModels;
 /// </summary>
 public enum CalibrationState
 {
+    /// <summary>Initial configuration step before connecting cameras.</summary>
     Setup,
+    /// <summary>Establishing connection to the cameras.</summary>
     Connecting,
+    /// <summary>Capturing calibration frames from the cameras.</summary>
     Capturing,
+    /// <summary>Running calibration computation on captured frames.</summary>
     Processing,
+    /// <summary>Displaying calibration results to the user.</summary>
     Result,
+    /// <summary>Saving the calibration result to persistent storage.</summary>
     Saving
 }
 

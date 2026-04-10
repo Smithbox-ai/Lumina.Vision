@@ -125,7 +125,7 @@
                                                    VerticalAlignment="Center"/>
                                         <TextBox Grid.Row="0" Grid.Column="1" 
                                                  Text="{Binding Settings.LeftCameraUrl}"
-                                                 Watermark="{Binding LeftCameraUrlWatermark}"/>
+                                                 PlaceholderText="{Binding LeftCameraUrlWatermark}"/>
                                         <TextBlock Grid.Row="1" Grid.Column="1"
                                                    Text="{Binding LeftUrlError}"
                                                    Classes="validation-error-text"
@@ -176,7 +176,7 @@
                                                    VerticalAlignment="Center"/>
                                         <TextBox Grid.Row="0" Grid.Column="1" 
                                                  Text="{Binding Settings.RightCameraUrl}"
-                                                 Watermark="{Binding RightCameraUrlWatermark}"/>
+                                                 PlaceholderText="{Binding RightCameraUrlWatermark}"/>
                                         <TextBlock Grid.Row="1" Grid.Column="1"
                                                    Text="{Binding RightUrlError}"
                                                    Classes="validation-error-text"

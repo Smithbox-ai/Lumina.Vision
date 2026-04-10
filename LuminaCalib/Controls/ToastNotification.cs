@@ -12,6 +12,7 @@ namespace LuminaCalib.Controls;
 /// </summary>
 public class ToastNotification : UserControl
 {
+    /// <summary>Attached property that holds the <see cref="NotificationItem"/> to display.</summary>
     public static readonly StyledProperty<NotificationItem?> NotificationProperty =
         AvaloniaProperty.Register<ToastNotification, NotificationItem?>(nameof(Notification));
 
@@ -27,6 +28,7 @@ public class ToastNotification : UserControl
         NotificationProperty.Changed.AddClassHandler<ToastNotification>((s, _) => s.UpdateUi());
     }
 
+    /// <summary>Initialises the component and renders the current notification.</summary>
     public ToastNotification()
     {
         UpdateUi();

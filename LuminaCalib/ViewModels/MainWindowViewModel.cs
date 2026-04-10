@@ -345,6 +345,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(IsSingleCameraMode))]
     private bool _isAutoMode = true;
 
+    /// <summary>Gets a value indicating whether the stereo-only calibration mode is active.</summary>
     public bool IsStereoOnlyMode
     {
         get => !IsAutoMode && !IsSingleCameraMode;
@@ -800,6 +801,7 @@ public partial class MainWindowViewModel : ViewModelBase
     /// <param name="settingsService">Сервис настроек.</param>
     /// <param name="synchronizer">Синхронизатор стереопар.</param>
     /// <param name="captureSessionService">Сервис сессий захвата (опционально).</param>
+    /// <param name="depthMapService">Сервис карты глубины (опционально).</param>
     public MainWindowViewModel(
         SettingsService settingsService,
         StereoSynchronizer synchronizer,
@@ -929,6 +931,7 @@ public partial class MainWindowViewModel : ViewModelBase
     /// <param name="pair">Стереопара кадров.</param>
     /// <param name="leftPreview">Выходной кадр левой камеры.</param>
     /// <param name="rightPreview">Выходной кадр правой камеры.</param>
+    /// <param name="ownsPreview">true если вызывающий код должен освободить выходные Mat-кадры.</param>
     /// <returns>true в случае успеха.</returns>
     public bool TryCreatePreviewFrames(StereoFramePair pair, out Mat leftPreview, out Mat rightPreview, out bool ownsPreview)
     {
@@ -983,6 +986,7 @@ public partial class MainWindowViewModel : ViewModelBase
     /// <param name="frame">Исходный кадр.</param>
     /// <param name="isLeft">true для левой камеры.</param>
     /// <param name="preview">Выходной кадр.</param>
+    /// <param name="ownsPreview">true если вызывающий код должен освободить выходной Mat-кадр.</param>
     /// <returns>true в случае успеха.</returns>
     public bool TryCreatePreviewFrame(FrameRaw frame, bool isLeft, out Mat preview, out bool ownsPreview)
     {
@@ -3626,6 +3630,7 @@ public partial class MainWindowViewModel : ViewModelBase
         HasLogEntries = false;
     }
 
+    /// <summary>Adds <paramref name="line"/> to the log display, capping the list at <see cref="MaxLogEntries"/>.</summary>
     public void AppendLogLine(string line)
     {
         if (string.IsNullOrWhiteSpace(line))
@@ -3650,6 +3655,7 @@ public partial class MainWindowViewModel : ViewModelBase
         AppendLogLine(line);
     }
 
+    /// <summary>Unsubscribes event handlers and disposes all owned resources.</summary>
     public void Cleanup()
     {
         ExceptionLogger.OnLogLine -= OnExceptionLogLine;
