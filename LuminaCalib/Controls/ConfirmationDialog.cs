@@ -31,7 +31,7 @@ public static class ConfirmationDialog
             Height = 200,
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
             CanResize = false,
-            SystemDecorations = SystemDecorations.BorderOnly,
+            WindowDecorations = WindowDecorations.BorderOnly,
             Background = new SolidColorBrush(Color.Parse("#252525")),
         };
 
