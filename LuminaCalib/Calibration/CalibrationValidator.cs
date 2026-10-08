@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Runtime.InteropServices;
 using Emgu.CV;
 using Emgu.CV.Structure;
 using LuminaCalib.Models;
@@ -33,21 +34,21 @@ public static class CalibrationValidator
         };
 
         // Проверка корректности матриц камер
-        validation.HasValidCameraMatrices = !calibration.CameraMatrixLeft.IsEmpty 
+        validation.HasValidCameraMatrices = !calibration.CameraMatrixLeft.IsEmpty
                                           && !calibration.CameraMatrixRight.IsEmpty;
-        
+
         // Проверка коэффициентов дисторсии
-        validation.HasValidDistortion = !calibration.DistCoeffsLeft.IsEmpty 
+        validation.HasValidDistortion = !calibration.DistCoeffsLeft.IsEmpty
                                        && !calibration.DistCoeffsRight.IsEmpty;
-        
+
         // Проверка внешних параметров (R, T)
         validation.HasValidExtrinsics = !calibration.R.IsEmpty && !calibration.T.IsEmpty;
-        
+
         // Проверка матриц ректификации
-        validation.HasValidRectification = !calibration.R1.IsEmpty 
-                                          && !calibration.R2.IsEmpty 
-                                          && !calibration.P1.IsEmpty 
-                                          && !calibration.P2.IsEmpty 
+        validation.HasValidRectification = !calibration.R1.IsEmpty
+                                          && !calibration.R2.IsEmpty
+                                          && !calibration.P1.IsEmpty
+                                          && !calibration.P2.IsEmpty
                                           && !calibration.Q.IsEmpty;
 
         // Вычисляем базовое расстояние (норма вектора смещения)
@@ -84,9 +85,9 @@ public static class CalibrationValidator
         validation.FilteredOutPairCount = calibration.FilteredOutPairCount;
 
         // Общая проверка валидности: все матрицы корректны, ошибка < 2.0, минимум 10 пар
-        validation.IsValid = validation.HasValidCameraMatrices 
-                           && validation.HasValidDistortion 
-                           && validation.HasValidExtrinsics 
+        validation.IsValid = validation.HasValidCameraMatrices
+                           && validation.HasValidDistortion
+                           && validation.HasValidExtrinsics
                            && validation.HasValidRectification
                            && validation.ReprojectionError < 2.0
                            && validation.ImagePairCount >= 10;
@@ -234,6 +235,9 @@ public static class CalibrationValidator
         return errors;
     }
 
+    private static float ReadMapValue(Mat map, int row, int col) =>
+        BitConverter.Int32BitsToSingle(Marshal.ReadInt32(map.DataPointer, row * map.Step + col * sizeof(float)));
+
     /// <summary>
     /// Применяет билинейную интерполяцию в картах ремаппинга для получения ректифицированных координат точки.
     /// </summary>
@@ -243,11 +247,9 @@ public static class CalibrationValidator
     /// <returns>Ректифицированная позиция точки.</returns>
     internal static PointF RemapPoint(PointF point, Mat mapX, Mat mapY)
     {
-        using var imgX = mapX.ToImage<Gray, float>();
-        using var imgY = mapY.ToImage<Gray, float>();
 
-        int maxCol = imgX.Width - 1;
-        int maxRow = imgX.Height - 1;
+        int maxCol = mapX.Cols - 1;
+        int maxRow = mapX.Rows - 1;
 
         int ix = (int)point.X;
         int iy = (int)point.Y;
@@ -259,15 +261,15 @@ public static class CalibrationValidator
         int x1 = Math.Clamp(ix + 1, 0, maxCol);
         int y1 = Math.Clamp(iy + 1, 0, maxRow);
 
-        float newX = (1 - fx) * (1 - fy) * (float)imgX[y0, x0].Intensity
-                   + fx * (1 - fy) * (float)imgX[y0, x1].Intensity
-                   + (1 - fx) * fy * (float)imgX[y1, x0].Intensity
-                   + fx * fy * (float)imgX[y1, x1].Intensity;
+        float newX = (1 - fx) * (1 - fy) * ReadMapValue(mapX, y0, x0)
+                   + fx * (1 - fy) * ReadMapValue(mapX, y0, x1)
+                   + (1 - fx) * fy * ReadMapValue(mapX, y1, x0)
+                   + fx * fy * ReadMapValue(mapX, y1, x1);
 
-        float newY = (1 - fx) * (1 - fy) * (float)imgY[y0, x0].Intensity
-                   + fx * (1 - fy) * (float)imgY[y0, x1].Intensity
-                   + (1 - fx) * fy * (float)imgY[y1, x0].Intensity
-                   + fx * fy * (float)imgY[y1, x1].Intensity;
+        float newY = (1 - fx) * (1 - fy) * ReadMapValue(mapY, y0, x0)
+                   + fx * (1 - fy) * ReadMapValue(mapY, y0, x1)
+                   + (1 - fx) * fy * ReadMapValue(mapY, y1, x0)
+                   + fx * fy * ReadMapValue(mapY, y1, x1);
 
         return new PointF(newX, newY);
     }
@@ -293,7 +295,7 @@ public record CalibrationValidation
 
     /// <summary>Размер изображения калибровки (в пикселях).</summary>
     public System.Drawing.Size ImageSize { get; set; }
-    
+
     /// <summary>Матрицы камер корректны (не пусты).</summary>
     public bool HasValidCameraMatrices { get; set; }
 
@@ -311,7 +313,7 @@ public record CalibrationValidation
 
     /// <summary>Базовое расстояние между камерами (норма вектора T).</summary>
     public double BaselineDistance { get; set; }
-    
+
     /// <summary>Фокусное расстояние левой камеры по оси X (fx).</summary>
     public double FocalLengthLeftX { get; set; }
 
@@ -323,7 +325,7 @@ public record CalibrationValidation
 
     /// <summary>Фокусное расстояние правой камеры по оси Y (fy).</summary>
     public double FocalLengthRightY { get; set; }
-    
+
     /// <summary>Координата X главной точки левой камеры (cx).</summary>
     public double PrincipalPointLeftX { get; set; }
 

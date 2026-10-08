@@ -29,7 +29,7 @@ public class MainWindowViewModelTests
         // Arrange
         var settingsService = new SettingsService();
         var synchronizer = new StereoSynchronizer();
-        
+
         // Act
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -37,25 +37,25 @@ public class MainWindowViewModelTests
         Assert.True(viewModel.IsCalibrationView, "Should default to Calibration view");
         Assert.False(viewModel.IsBoardGeneratorView, "Board Generator view should not be active by default");
         Assert.False(viewModel.IsHistoryView, "History view should not be active by default");
-        
+
         Assert.True(viewModel.IsAutoMode, "Should default to Auto mode");
         Assert.False(viewModel.IsStereoOnlyMode, "Stereo-only mode should not be active by default");
         Assert.False(viewModel.IsSingleCameraMode, "Single camera mode should not be active by default");
-        
+
         Assert.Equal(0, viewModel.CurrentStep);
         Assert.Equal(0, viewModel.CapturedPairsCount);
         Assert.True(viewModel.RequiredPairs > 0, "RequiredPairs should be initialized to a positive value from settings");
-        
+
         Assert.False(viewModel.LeftCameraConnected);
         Assert.False(viewModel.RightCameraConnected);
         Assert.False(viewModel.AreCamerasConnected);
         Assert.False(viewModel.CanCapture);
-        
+
         Assert.False(string.IsNullOrWhiteSpace(viewModel.CalibrationStatusText));
-        
+
         Assert.False(viewModel.IsSettingsOpen, "Settings should be closed by default");
         Assert.NotNull(viewModel.SettingsVm);
-        
+
         // Cleanup
         viewModel.Cleanup();
     }
@@ -78,7 +78,7 @@ public class MainWindowViewModelTests
 
         // Act & Assert - Test switching to BoardGenerator view
         viewModel.IsBoardGeneratorView = true;
-        
+
         Assert.False(viewModel.IsCalibrationView, "Calibration view should be deactivated");
         Assert.True(viewModel.IsBoardGeneratorView, "BoardGenerator view should be active");
         Assert.False(viewModel.IsHistoryView, "History view should not be active");
@@ -87,7 +87,7 @@ public class MainWindowViewModelTests
         // Note: Currently requires manual deactivation of other views
         viewModel.IsCalibrationView = false; // Workaround for missing mutual exclusivity
         viewModel.IsHistoryView = true;
-        
+
         Assert.False(viewModel.IsCalibrationView, "Calibration view should remain deactivated");
         Assert.False(viewModel.IsBoardGeneratorView, "BoardGenerator view should be deactivated");
         Assert.True(viewModel.IsHistoryView, "History view should be active");
@@ -96,11 +96,11 @@ public class MainWindowViewModelTests
         // Note: Currently requires manual deactivation of other views
         viewModel.IsHistoryView = false; // Workaround for missing mutual exclusivity
         viewModel.IsCalibrationView = true;
-        
+
         Assert.True(viewModel.IsCalibrationView, "Calibration view should be active");
         Assert.False(viewModel.IsBoardGeneratorView, "BoardGenerator view should be deactivated");
         Assert.False(viewModel.IsHistoryView, "History view should be deactivated");
-        
+
         // Cleanup
         viewModel.Cleanup();
     }
@@ -123,7 +123,7 @@ public class MainWindowViewModelTests
 
         // Act & Assert - Test switching to StereoOnly mode
         viewModel.IsStereoOnlyMode = true;
-        
+
         Assert.False(viewModel.IsAutoMode, "Auto mode should be deactivated");
         Assert.True(viewModel.IsStereoOnlyMode, "StereoOnly mode should be active");
         Assert.False(viewModel.IsSingleCameraMode, "SingleCamera mode should not be active");
@@ -132,7 +132,7 @@ public class MainWindowViewModelTests
         // Note: Currently requires manual deactivation of other modes
         viewModel.IsAutoMode = false; // Workaround for missing mutual exclusivity
         viewModel.IsSingleCameraMode = true;
-        
+
         Assert.False(viewModel.IsAutoMode, "Auto mode should remain deactivated");
         Assert.False(viewModel.IsStereoOnlyMode, "StereoOnly mode should be deactivated");
         Assert.True(viewModel.IsSingleCameraMode, "SingleCamera mode should be active");
@@ -141,11 +141,11 @@ public class MainWindowViewModelTests
         // Note: Currently requires manual deactivation of other modes
         viewModel.IsSingleCameraMode = false; // Workaround for missing mutual exclusivity
         viewModel.IsAutoMode = true;
-        
+
         Assert.True(viewModel.IsAutoMode, "Auto mode should be active");
         Assert.False(viewModel.IsStereoOnlyMode, "StereoOnly mode should be deactivated");
         Assert.False(viewModel.IsSingleCameraMode, "SingleCamera mode should be deactivated");
-        
+
         // Cleanup
         viewModel.Cleanup();
     }
@@ -283,7 +283,7 @@ public class MainWindowViewModelTests
         viewModel.RightCameraConnected = true;
         Assert.True(viewModel.AreCamerasConnected);
         Assert.True(viewModel.CanCapture);
-        
+
         // Cleanup
         viewModel.Cleanup();
     }
@@ -309,7 +309,7 @@ public class MainWindowViewModelTests
         // Note: The actual CaptureFrame command requires cameras to be connected,
         // so we can only test the CanCalibrate property logic here.
         // Full integration testing will be done in Phase 2-5.
-        
+
         // Cleanup
         viewModel.Cleanup();
     }
@@ -339,7 +339,7 @@ public class MainWindowViewModelTests
 
         // Assert - Settings are now closed
         Assert.False(viewModel.IsSettingsOpen);
-        
+
         // Cleanup
         viewModel.Cleanup();
     }
@@ -353,17 +353,17 @@ public class MainWindowViewModelTests
         // Arrange
         var settingsService = new SettingsService();
         var synchronizer = new StereoSynchronizer();
-        
+
         // Act
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
         // Assert - SettingsVm should be initialized
         Assert.NotNull(viewModel.SettingsVm);
-        
+
         // Verify that changes to SettingsService are reflected in SettingsVm
         // Both should reference the same Settings instance
         Assert.Same(settingsService.Settings, viewModel.SettingsVm.Settings);
-        
+
         // Cleanup
         viewModel.Cleanup();
     }
@@ -372,25 +372,26 @@ public class MainWindowViewModelTests
     /// Validates that disconnecting cameras resets CurrentStep to 0.
     /// </summary>
     [Fact]
-    public async Task DisconnectCameras_ResetsCurrentStepToZero()
+    public Task DisconnectCameras_ResetsCurrentStepToZero()
+    => UiTest.Run(async () =>
     {
         // Arrange
         var settingsService = new SettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
-        
+
         // Simulate advanced workflow state
         viewModel.CurrentStep = 2;
-        
+
         // Act
         await viewModel.DisconnectCamerasCommand.ExecuteAsync(null);
-        
+
         // Assert
         Assert.Equal(0, viewModel.CurrentStep);
-        
+
         // Cleanup
         viewModel.Cleanup();
-    }
+    });
 
     /// <summary>
     /// Validates that disconnecting cameras clears captured pairs count.
@@ -402,14 +403,14 @@ public class MainWindowViewModelTests
         var settingsService = new SettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
-        
+
         // Act
         await viewModel.DisconnectCamerasCommand.ExecuteAsync(null);
-        
+
         // Assert
         Assert.Equal(0, viewModel.CapturedPairsCount);
         Assert.Equal(0, viewModel.CurrentStep);
-        
+
         // Cleanup
         viewModel.Cleanup();
     }
@@ -424,13 +425,13 @@ public class MainWindowViewModelTests
         var settingsService = new SettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
-        
+
         // Act
         await viewModel.DisconnectCamerasCommand.ExecuteAsync(null);
-        
+
         // Assert
         Assert.False(viewModel.HasCalibration);
-        
+
         // Cleanup
         viewModel.Cleanup();
     }
@@ -439,7 +440,8 @@ public class MainWindowViewModelTests
     /// Проверяет, что при отключении камер всегда сбрасывается состояние поиска паттерна.
     /// </summary>
     [Fact]
-    public async Task DisconnectCameras_StopsDetectionAndAutoCapture()
+    public Task DisconnectCameras_StopsDetectionAndAutoCapture()
+    => UiTest.Run(async () =>
     {
         var settingsService = new SettingsService();
         var synchronizer = new StereoSynchronizer();
@@ -458,7 +460,7 @@ public class MainWindowViewModelTests
         Assert.False(viewModel.CanShowDetectionButton);
 
         viewModel.Cleanup();
-    }
+    });
 
     // === Phase 6: UI Control State Tests ===
 
@@ -491,10 +493,13 @@ public class MainWindowViewModelTests
     /// and there are enough captured pairs.
     /// </summary>
     [Fact]
-    public void CanCalibrate_ReturnsTrue_AfterAutoCaptureCompletes()
+    public Task CanCalibrate_ReturnsTrue_AfterAutoCaptureCompletes()
+    => UiTest.Run(() =>
     {
         // Arrange
-        var settingsService = new SettingsService();
+        // Use fresh settings: other tests can persist the saved-session source mode.
+        var settingsService = new SettingsService(Path.Combine(Path.GetTempPath(),
+            $"LuminaCalib_CanCalibrate_{Guid.NewGuid():N}.json"));
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -508,7 +513,7 @@ public class MainWindowViewModelTests
 
         // Cleanup
         viewModel.Cleanup();
-    }
+    });
 
     /// <summary>
     /// Validates that CanShowCaptureButton returns false when CurrentStep >= 2
@@ -1122,7 +1127,8 @@ public class MainWindowViewModelTests
     }
 
     [Fact]
-    public void DepthMap_EnableFails_WhenCamerasDisconnected()
+    public Task DepthMap_EnableFails_WhenCamerasDisconnected()
+    => UiTest.Run(() =>
     {
         var settingsService = new SettingsService();
         settingsService.Settings.Language = "en";
@@ -1135,7 +1141,7 @@ public class MainWindowViewModelTests
         Assert.Contains("connected cameras", viewModel.CalibrationStatusText, StringComparison.OrdinalIgnoreCase);
 
         viewModel.Cleanup();
-    }
+    });
 
     /// <summary>
     /// Проверяет поведение кнопок и захвата при частичном подключении камер.
@@ -1180,7 +1186,8 @@ public class MainWindowViewModelTests
     }
 
     [Fact]
-    public void DepthMap_EnableFails_WhenNoActiveDepthCalibration()
+    public Task DepthMap_EnableFails_WhenNoActiveDepthCalibration()
+    => UiTest.Run(() =>
     {
         var settingsService = new SettingsService();
         settingsService.Settings.Language = "en";
@@ -1199,7 +1206,7 @@ public class MainWindowViewModelTests
         Assert.Contains("active calibration file", viewModel.CalibrationStatusText, StringComparison.OrdinalIgnoreCase);
 
         viewModel.Cleanup();
-    }
+    });
 
     [Fact]
     public void DepthMap_EnableSucceeds_WhenCalibrationIsAvailable()

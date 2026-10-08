@@ -12,6 +12,36 @@ namespace LuminaCalib.Tests;
 /// </summary>
 public sealed class CornerDetectorDownscaleTests
 {
+    [Theory]
+    [InlineData(1.0f)]
+    [InlineData(0.5f)]
+    public void DetectCorners_GeneratedCharucoBoard_ReturnsMatchingCornersAndIds(float scale)
+    {
+        using var generator = new LuminaCalib.Services.CharucoBoardGenerator();
+        using var image = generator.GenerateCharucoBoard(new BoardGeneratorSettings
+        {
+            SquaresX = 5,
+            SquaresY = 7,
+            SquareLength = 30f,
+            MarkerLengthRatio = 22f / 30f,
+            Dictionary = CharucoDictionary.Dict6x6_250,
+            Dpi = 100,
+            Margin = 20
+        });
+        var detector = MakeCharucoDetector();
+
+        Assert.True(detector.DetectCorners(image, out var corners, out var ids, scale));
+        Assert.Equal(24, corners.Length);
+        Assert.NotNull(ids);
+        Assert.Equal(corners.Length, ids.Length);
+        Assert.Equal(24, ids.Distinct().Count());
+        Assert.All(corners, point =>
+        {
+            Assert.InRange(point.X, 0, image.Width);
+            Assert.InRange(point.Y, 0, image.Height);
+        });
+    }
+
     private static CornerDetector MakeChessboardDetector() =>
         new(9, 6, BoardType.Chessboard);
 

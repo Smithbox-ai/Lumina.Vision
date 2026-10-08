@@ -124,8 +124,8 @@ public sealed class DepthMapProcessorTests
             { 0, 0, 1, 0 },
             { 0, 0, 0, 1 }
         };
-        using var Q = new Emgu.CV.Matrix<double>(qData);
-        using var qMat = Q.Mat;
+        using var qMat = new Mat(4, 4, DepthType.Cv64F, 1);
+        Marshal.Copy(qData.Cast<double>().ToArray(), 0, qMat.DataPointer, 16);
 
         using var points = DepthMapProcessor.ReprojectTo3D(disparity, qMat);
 
@@ -260,8 +260,8 @@ public sealed class DepthMapProcessorTests
             { 0, 0, 0,  f  },
             { 0, 0, -1.0 / tx, 0 }
         };
-        using var Q = new Emgu.CV.Matrix<double>(qData);
-        using var qMat = Q.Mat;
+        using var qMat = new Mat(4, 4, DepthType.Cv64F, 1);
+        Marshal.Copy(qData.Cast<double>().ToArray(), 0, qMat.DataPointer, 16);
 
         // Use CV_32F disparity to avoid ×16 ambiguity and handleMissingValues issues.
         // ReprojectImageTo3D uses the raw float value directly.

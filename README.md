@@ -1,4 +1,4 @@
-# LuminaCalib
+﻿# LuminaCalib
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
@@ -25,7 +25,7 @@
 - **ChArUco board generator** — PDF, SVG, and high-res PNG export with configurable dictionaries and DPI
 - **RTSP camera support** — UDP/TCP transport, HW acceleration (NVDEC, VAAPI, QuickSync), automatic CPU fallback
 - **Calibration library** — file-watcher-backed manager for calibration sessions and result files
-- **Cross-platform** — Windows and Linux (Ubuntu 22.04+)
+- **Cross-platform** — Windows and Linux (Ubuntu 24.04+)
 
 ---
 
@@ -114,7 +114,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Please read our [Code of Conduct](CODE_O
 - **Генератор ChArUco-досок** — экспорт в PDF, SVG и PNG с настраиваемыми словарями и DPI
 - **Поддержка RTSP-камер** — UDP/TCP транспорт, аппаратное ускорение (NVDEC, VAAPI, QuickSync), автоматический CPU fallback
 - **Библиотека калибровок** — менеджер сессий и результатов с автообновлением через FileWatcher
-- **Кроссплатформенность** — Windows и Linux (Ubuntu 22.04+)
+- **Кроссплатформенность** — Windows и Linux (Ubuntu 24.04+)
 
 ---
 

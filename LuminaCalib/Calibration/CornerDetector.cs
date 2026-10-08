@@ -210,30 +210,15 @@ public sealed class CornerDetector
         if (_arucoDictionary == null || _charucoBoard == null || _detectorParams == null)
             return false;
 
-        var detectorParams = (DetectorParameters)_detectorParams;
-
-        using var markerCorners = new VectorOfVectorOfPointF();
-        using var markerIds = new VectorOfInt();
-
-        // Этап 1: обнаружение ArUco-маркеров
-        ArucoInvoke.DetectMarkers(gray, _arucoDictionary, markerCorners, markerIds, detectorParams);
-
-        if (markerIds.Size == 0) return false;
-
         using var charucoCorners = new VectorOfPointF();
         using var charucoIds = new VectorOfInt();
-
-        // Этап 2: интерполяция ChArUco-углов по найденным маркерам
-        int numCorners = ArucoInvoke.InterpolateCornersCharuco(
-            markerCorners,
-            markerIds,
-            gray,
-            _charucoBoard,
-            charucoCorners,
-            charucoIds);
+        using var parameters = new CharucoParameters(2, false, true);
+        using var detector = new CharucoDetector(_charucoBoard, parameters,
+            (DetectorParameters)_detectorParams, new RefineParameters(10f, 3f, true));
+        EmguCharucoDetection.DetectBoard(detector, gray, charucoCorners, charucoIds);
 
         // Минимум 4 угла для корректной калибровки
-        if (numCorners < 4) return false;
+        if (charucoCorners.Size < 4) return false;
 
         // Преобразуем результаты в массивы
         corners = charucoCorners.ToArray();

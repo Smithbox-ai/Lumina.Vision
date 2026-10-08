@@ -383,8 +383,14 @@ public class DepthMapServiceTests : IDisposable
         // Process 5 frames
         for (int i = 0; i < 5; i++)
         {
-            service.ProcessStereoFrame(MakeTestPair());
-            Assert.True(ready.Wait(1500), $"Expected depth map result for frame {i + 1}");
+            var pair = MakeTestPair();
+            // Results are published before the worker clears its busy flag. Retry
+            // submission until the previous worker has released the service.
+            Assert.True(SpinWait.SpinUntil(() =>
+            {
+                service.ProcessStereoFrame(pair);
+                return ready.Wait(10, TestContext.Current.CancellationToken);
+            }, 1500), $"Expected depth map result for frame {i + 1}");
             ready.Reset();
         }
 

@@ -1,4 +1,3 @@
-using Avalonia.Headless.XUnit;
 using Avalonia.Controls;
 using LuminaCalib.Devices;
 using LuminaCalib.Models;
@@ -19,8 +18,9 @@ public class ViewLoadingTests
     /// Validates that MainWindow can be instantiated with a ViewModel without throwing exceptions.
     /// This catches XAML binding errors, missing resources, and basic initialization issues.
     /// </summary>
-    [AvaloniaFact]
-    public void MainWindow_Loads_Without_Exception()
+    [Fact]
+    public Task MainWindow_Loads_Without_Exception()
+    => UiTest.Run(() =>
     {
         // Arrange & Act
         var settingsService = new SettingsService();
@@ -35,45 +35,48 @@ public class ViewLoadingTests
         Assert.NotNull(window);
         Assert.NotNull(window.DataContext);
         Assert.IsType<MainWindowViewModel>(window.DataContext);
-        
+
         // Cleanup
         viewModel.Cleanup();
-    }
+    });
 
     /// <summary>
     /// Validates that SettingsView can be instantiated without throwing exceptions.
     /// This catches XAML compilation errors and missing resources.
     /// </summary>
-    [AvaloniaFact]
-    public void SettingsView_Loads_Without_Exception()
+    [Fact]
+    public Task SettingsView_Loads_Without_Exception()
+    => UiTest.Run(() =>
     {
         // Arrange & Act
         var view = new SettingsView();
 
         // Assert - successful instantiation without exceptions
         Assert.NotNull(view);
-    }
+    });
 
     /// <summary>
     /// Validates that BoardGeneratorView can be instantiated without throwing exceptions.
     /// This catches XAML compilation errors and missing resources.
     /// </summary>
-    [AvaloniaFact]
-    public void BoardGeneratorView_Loads_Without_Exception()
+    [Fact]
+    public Task BoardGeneratorView_Loads_Without_Exception()
+    => UiTest.Run(() =>
     {
         // Arrange & Act
         var view = new BoardGeneratorView();
 
         // Assert - successful instantiation without exceptions
         Assert.NotNull(view);
-    }
+    });
 
     /// <summary>
     /// Validates that the Settings overlay is properly wired to IsSettingsOpen property.
     /// This test ensures the UI binding doesn't break.
     /// </summary>
-    [AvaloniaFact]
-    public void MainWindow_SettingsOverlay_BindsToIsSettingsOpen()
+    [Fact]
+    public Task MainWindow_SettingsOverlay_BindsToIsSettingsOpen()
+    => UiTest.Run(() =>
     {
         // Arrange
         var settingsService = new SettingsService();
@@ -98,10 +101,11 @@ public class ViewLoadingTests
 
         // Cleanup
         vm.Cleanup();
-    }
+    });
 
-    [AvaloniaFact]
-    public void MainWindow_DefaultCalibrationModeRadioSelection_IsAuto()
+    [Fact]
+    public Task MainWindow_DefaultCalibrationModeRadioSelection_IsAuto()
+    => UiTest.Run(() =>
     {
         var root = Path.Combine(Path.GetTempPath(), $"LuminaCalib_MainMode_Default_{Guid.NewGuid():N}");
         Directory.CreateDirectory(root);
@@ -134,10 +138,11 @@ public class ViewLoadingTests
         {
             TryDeleteDirectory(root);
         }
-    }
+    });
 
-    [AvaloniaFact]
-    public void MainWindow_RestoresCalibrationModeRadioSelection_FromSettings()
+    [Fact]
+    public Task MainWindow_RestoresCalibrationModeRadioSelection_FromSettings()
+    => UiTest.Run(() =>
     {
         var root = Path.Combine(Path.GetTempPath(), $"LuminaCalib_MainMode_Restore_{Guid.NewGuid():N}");
         Directory.CreateDirectory(root);
@@ -170,7 +175,7 @@ public class ViewLoadingTests
         {
             TryDeleteDirectory(root);
         }
-    }
+    });
 
     private static (RadioButton Auto, RadioButton StereoOnly, RadioButton SingleCamera) GetMainCalibrationModeButtons(MainWindow window)
     {

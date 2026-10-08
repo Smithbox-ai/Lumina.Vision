@@ -423,32 +423,55 @@ public sealed class CalibrationEngineTests
 
         return new CalibrationResult
         {
-            CameraMatrixLeft = camLeft, CameraMatrixRight = camRight,
-            DistCoeffsLeft = distLeft, DistCoeffsRight = distRight,
-            R = r, T = t, E = e, F = f,
-            R1 = r1, R2 = r2, P1 = p1, P2 = p2, Q = q
+            CameraMatrixLeft = camLeft,
+            CameraMatrixRight = camRight,
+            DistCoeffsLeft = distLeft,
+            DistCoeffsRight = distRight,
+            R = r,
+            T = t,
+            E = e,
+            F = f,
+            R1 = r1,
+            R2 = r2,
+            P1 = p1,
+            P2 = p2,
+            Q = q
         };
+    }
+
+    [Fact]
+    public void RemapPoint_WithNonContiguousMaps_UsesRowStride()
+    {
+        using var sourceX = CreateIdentityMapX(10, 10);
+        using var sourceY = CreateIdentityMapY(10, 10);
+        using var mapX = new Mat(sourceX, new Rectangle(2, 3, 5, 5));
+        using var mapY = new Mat(sourceY, new Rectangle(2, 3, 5, 5));
+
+        var result = CalibrationValidator.RemapPoint(new PointF(1.5f, 2.25f), mapX, mapY);
+
+        Assert.InRange(result.X, 3.49f, 3.51f);
+        Assert.InRange(result.Y, 5.24f, 5.26f);
     }
 
     private static Mat CreateIdentityMapX(int width, int height)
     {
         var map = new Mat(height, width, DepthType.Cv32F, 1);
-        using var img = map.ToImage<Gray, float>();
+        var data = new float[width * height];
         for (int y = 0; y < height; y++)
             for (int x = 0; x < width; x++)
-                img[y, x] = new Gray(x);
-        img.Mat.CopyTo(map);
+                data[y * width + x] = x;
+        System.Runtime.InteropServices.Marshal.Copy(data, 0, map.DataPointer, data.Length);
         return map;
     }
 
     private static Mat CreateIdentityMapY(int width, int height)
     {
         var map = new Mat(height, width, DepthType.Cv32F, 1);
-        using var img = map.ToImage<Gray, float>();
+        var data = new float[width * height];
         for (int y = 0; y < height; y++)
             for (int x = 0; x < width; x++)
-                img[y, x] = new Gray(y);
-        img.Mat.CopyTo(map);
+                data[y * width + x] = y;
+        System.Runtime.InteropServices.Marshal.Copy(data, 0, map.DataPointer, data.Length);
         return map;
     }
 

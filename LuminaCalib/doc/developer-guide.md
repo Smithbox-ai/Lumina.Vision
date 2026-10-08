@@ -59,7 +59,7 @@
 ### 1.4. Требования к окружению
 
 - **.NET 10 SDK** для сборки
-- **Windows** или **Linux (Ubuntu 22.04+)** для запуска
+- **Windows** или **Linux (Ubuntu 24.04+)** для запуска
 - Камеры с поддержкой **RTSP** или **HTTP** потока
 - Рекомендуется видеокарта с поддержкой **NVDEC/DXVA2** для аппаратного декодирования
 
@@ -966,12 +966,12 @@ dotnet publish LuminaCalib/LuminaCalib.csproj -c Release -r win-x64 --self-conta
 
 ### 14.2. Кросс-платформенность
 
-Проект поддерживает Windows и Linux (Ubuntu 22.04+). Условные пакеты EmguCV:
+Проект поддерживает Windows и Linux (Ubuntu 24.04+). Условные пакеты EmguCV:
 
 ```xml
-<PackageReference Include="Emgu.CV.runtime.windows" Version="4.12.0.5764"
+<PackageReference Include="Emgu.CV.runtime.windows" Version="5.0.0.6584"
     Condition="$([MSBuild]::IsOSPlatform('Windows'))" />
-<PackageReference Include="Emgu.CV.runtime.ubuntu.22.04-x64" Version="4.10.0.5680"
+<PackageReference Include="Emgu.CV.runtime.ubuntu-24.04-x64" Version="5.0.0.6584"
     Condition="$([MSBuild]::IsOSPlatform('Linux'))" />
 ```
 

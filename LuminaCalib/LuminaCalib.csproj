@@ -28,35 +28,40 @@
 
   <ItemGroup>
     <!-- Avalonia UI Framework -->
-    <PackageReference Include="Avalonia" Version="12.0.0" />
-    <PackageReference Include="Avalonia.Desktop" Version="12.0.0" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.0" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.0" />
-    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-    <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.0.0" />
-    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.13">
-      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
-      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="Avalonia" Version="12.1.3" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.3" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.3" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.3" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.1.2" />
     
     <!-- Security: override transitive Tmds.DBus.Protocol to patched version (CVE-2026-39959 / GHSA-xrw6-gwf8-vvr9) -->
-    <PackageReference Include="Tmds.DBus.Protocol" Version="0.92.0" />
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.95.1" />
 
     <!-- MVVM Toolkit -->
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-    <PackageReference Include="Emgu.CV" Version="4.12.0.5764" />
-    <PackageReference Include="Emgu.CV.Bitmap" Version="4.12.0.5764" />
-    <PackageReference Include="Emgu.CV.runtime.ubuntu-x64" Version="4.12.0.5764" Condition="$([MSBuild]::IsOSPlatform('Linux'))" />
-    <PackageReference Include="Emgu.CV.runtime.windows" Version="4.12.0.5764" />
+    <!-- Keep managed and native EmguCV versions aligned. Linux requires Ubuntu 24.04+. -->
+    <PackageReference Include="Emgu.CV" Version="5.0.0.6584" />
+    <PackageReference Include="Emgu.CV.Bitmap" Version="5.0.0.6584" />
+    <PackageReference Include="Emgu.CV.runtime.ubuntu-24.04-x64" Version="5.0.0.6584"
+                      GeneratePathProperty="true"
+                      Condition="$(RuntimeIdentifier.StartsWith('linux')) Or ('$(RuntimeIdentifier)' == '' And $([MSBuild]::IsOSPlatform('Linux')))" />
+    <PackageReference Include="Emgu.CV.runtime.windows" Version="5.0.0.6584"
+                      Condition="$(RuntimeIdentifier.StartsWith('win')) Or ('$(RuntimeIdentifier)' == '' And $([MSBuild]::IsOSPlatform('Windows')))" />
     
     <!-- Dependency Injection -->
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
-    
-    <!-- EmguCV - Computer Vision -->
-    <PackageReference Include="Emgu.CV.runtime.ubuntu.22.04-x64" Version="4.10.0.5680" Condition="$([MSBuild]::IsOSPlatform('Linux'))" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.12" />
     
     <!-- PDF/SVG Export for ChArUco Board -->
-    <PackageReference Include="QuestPDF" Version="2026.2.4" />
-    <PackageReference Include="Svg.Skia" Version="4.0.0" />
+    <PackageReference Include="QuestPDF" Version="2026.9.1" />
+    <PackageReference Include="Svg.Skia" Version="5.2.3" />
+  </ItemGroup>
+
+  <!-- EmguCV uses a distro-specific RID, which .NET's portable linux-x64
+       RID graph does not select. Copy its native library explicitly for Linux. -->
+  <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('linux')) Or ('$(RuntimeIdentifier)' == '' And $([MSBuild]::IsOSPlatform('Linux')))">
+    <None Include="$(PkgEmgu_CV_runtime_ubuntu-24_04-x64)/runtimes/ubuntu-x64/native/libcvextern.so"
+          Link="libcvextern.so"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

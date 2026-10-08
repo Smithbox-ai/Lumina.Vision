@@ -186,7 +186,8 @@ public class SettingsViewModelTests
     /// Validates that localized UI labels update when language changes.
     /// </summary>
     [Fact]
-    public void SettingsViewModel_Localization_UpdatesWhenLanguageChanges()
+    public Task SettingsViewModel_Localization_UpdatesWhenLanguageChanges()
+    => UiTest.Run(() =>
     {
         var settingsPath = CreateTempSettingsPath();
         var settingsService = new SettingsService(settingsPath);
@@ -200,7 +201,7 @@ public class SettingsViewModelTests
         Assert.Equal("Save", viewModel.SaveButtonText);
         Assert.Equal("General", viewModel.GeneralTabText);
         Assert.Equal("Detection Interval (ms):", viewModel.DetectionIntervalLabelText);
-    }
+    });
 
     [Fact]
     public void SettingsViewModel_DetectionIntervalLocalization_UsesRussianLabel()
@@ -214,7 +215,8 @@ public class SettingsViewModelTests
     }
 
     [Fact]
-    public void SettingsViewModel_DetectionIntervalValidation_BlocksNegativeValues()
+    public Task SettingsViewModel_DetectionIntervalValidation_BlocksNegativeValues()
+    => UiTest.Run(() =>
     {
         var settingsPath = CreateTempSettingsPath();
         var settingsService = new SettingsService(settingsPath);
@@ -232,7 +234,7 @@ public class SettingsViewModelTests
         viewModel.Settings.DetectionIntervalMs = -1;
         Assert.False(viewModel.CanSave);
         Assert.NotNull(viewModel.DetectionIntervalError);
-    }
+    });
 
     /// <summary>
     /// Validates that TestLeftCamera command updates status message during test.
@@ -244,17 +246,17 @@ public class SettingsViewModelTests
         var settingsPath = CreateTempSettingsPath();
         var settingsService = new SettingsService(settingsPath);
         var viewModel = new SettingsViewModel(settingsService);
-        
+
         // Set a dummy camera URL to avoid null/empty URL
         viewModel.Settings.Language = "en";
         viewModel.Settings.LeftCameraUrl = "rtsp://dummy.test/stream";
 
         // Act
         await viewModel.TestLeftCameraCommand.ExecuteAsync(null);
-        
+
         // Assert - Command executed successfully if StatusMessage was updated
         // Accept any status outcome: "Success", "Failed", or "timeout"
-        Assert.False(string.IsNullOrEmpty(viewModel.StatusMessage), 
+        Assert.False(string.IsNullOrEmpty(viewModel.StatusMessage),
             "StatusMessage should be updated after test execution");
         Assert.True(
             viewModel.StatusMessage.Contains("Success", StringComparison.OrdinalIgnoreCase) ||
@@ -273,17 +275,17 @@ public class SettingsViewModelTests
         var settingsPath = CreateTempSettingsPath();
         var settingsService = new SettingsService(settingsPath);
         var viewModel = new SettingsViewModel(settingsService);
-        
+
         // Set a dummy camera URL to avoid null/empty URL
         viewModel.Settings.Language = "en";
         viewModel.Settings.RightCameraUrl = "rtsp://dummy.test/stream";
 
         // Act
         await viewModel.TestRightCameraCommand.ExecuteAsync(null);
-        
+
         // Assert - Command executed successfully if StatusMessage was updated
         // Accept any status outcome: "Success", "Failed", or "timeout"
-        Assert.False(string.IsNullOrEmpty(viewModel.StatusMessage), 
+        Assert.False(string.IsNullOrEmpty(viewModel.StatusMessage),
             "StatusMessage should be updated after test execution");
         Assert.True(
             viewModel.StatusMessage.Contains("Success", StringComparison.OrdinalIgnoreCase) ||
@@ -302,7 +304,7 @@ public class SettingsViewModelTests
         var settingsPath = CreateTempSettingsPath();
         var settingsService = new SettingsService(settingsPath);
         var viewModel = new SettingsViewModel(settingsService);
-        
+
         // Modify a setting
         var originalLanguage = viewModel.Settings.Language;
         viewModel.Settings.Language = originalLanguage == "en" ? "ru" : "en";
@@ -313,13 +315,13 @@ public class SettingsViewModelTests
         // Assert - Settings file should exist at temp path, not %AppData%
         Assert.True(File.Exists(settingsPath), $"Settings should be saved to temp file: {settingsPath}");
         Assert.NotEqual(originalLanguage, viewModel.Settings.Language);
-        
+
         // Verify the temp file contains the modified language setting
         var content = await File.ReadAllTextAsync(settingsPath);
         Assert.Contains(viewModel.Settings.Language, content);
-        
+
         // Cleanup
-        try { File.Delete(settingsPath); } 
+        try { File.Delete(settingsPath); }
         catch (IOException) { /* temp file cleanup can fail */ }
         catch (UnauthorizedAccessException) { /* ignore permission errors */ }
     }
@@ -374,7 +376,7 @@ public class SettingsViewModelTests
         var settingsPath = CreateTempSettingsPath();
         var settingsService = new SettingsService(settingsPath);
         var viewModel = new SettingsViewModel(settingsService);
-        
+
         // Modify settings
         viewModel.Settings.Language = "test";
         viewModel.Settings.PatternWidth = 999;
@@ -396,7 +398,8 @@ public class SettingsViewModelTests
     [InlineData(0.0f)]
     [InlineData(0.05f)]
     [InlineData(-1.0f)]
-    public void DetectionScale_BelowMinimum_ShowsError(float value)
+    public Task DetectionScale_BelowMinimum_ShowsError(float value)
+    => UiTest.Run(() =>
     {
         var settingsPath = CreateTempSettingsPath();
         var settingsService = new SettingsService(settingsPath);
@@ -406,7 +409,7 @@ public class SettingsViewModelTests
 
         Assert.NotNull(viewModel.DetectionScaleError);
         Assert.False(viewModel.CanSave);
-    }
+    });
 
     /// <summary>
     /// DetectionScale above 1.0 should produce a validation error.
@@ -414,7 +417,8 @@ public class SettingsViewModelTests
     [Theory]
     [InlineData(1.1f)]
     [InlineData(2.0f)]
-    public void DetectionScale_AboveMaximum_ShowsError(float value)
+    public Task DetectionScale_AboveMaximum_ShowsError(float value)
+    => UiTest.Run(() =>
     {
         var settingsPath = CreateTempSettingsPath();
         var settingsService = new SettingsService(settingsPath);
@@ -424,7 +428,7 @@ public class SettingsViewModelTests
 
         Assert.NotNull(viewModel.DetectionScaleError);
         Assert.False(viewModel.CanSave);
-    }
+    });
 
     /// <summary>
     /// DetectionScale within [0.1, 1.0] should not produce a validation error.

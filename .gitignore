@@ -38,8 +38,8 @@ project.lock.json
 # Publish output
 publish/
 
-# Avalonia Designer
-**/*.axaml.cs
+# Avalonia code-behind (*.axaml.cs) is source code and must be tracked.
+# Generated Avalonia files are already excluded through obj/ above.
 
 # Documentation generation
 xml/
