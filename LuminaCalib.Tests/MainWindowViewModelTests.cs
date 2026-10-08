@@ -17,8 +17,16 @@ namespace LuminaCalib.Tests;
 /// Unit tests for MainWindowViewModel to validate core business logic,
 /// state management, and navigation behavior.
 /// </summary>
-public class MainWindowViewModelTests
+public class MainWindowViewModelTests : IDisposable
 {
+    // xUnit creates a new instance per test, isolating persisted settings between tests.
+    private readonly string _settingsPath = Path.Combine(Path.GetTempPath(),
+        $"LuminaCalib_MainWindowViewModelTests_{Guid.NewGuid():N}.json");
+
+    private SettingsService CreateSettingsService() => new(_settingsPath);
+
+    public void Dispose() => File.Delete(_settingsPath);
+
     /// <summary>
     /// Validates that the constructor properly initializes all properties
     /// to their expected default values.
@@ -27,7 +35,7 @@ public class MainWindowViewModelTests
     public void Constructor_Initializes_Properties()
     {
         // Arrange
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
 
         // Act
@@ -72,7 +80,7 @@ public class MainWindowViewModelTests
     public void Navigation_Booleans_MutuallyExclusive()
     {
         // Arrange
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -117,7 +125,7 @@ public class MainWindowViewModelTests
     public void CalibrationMode_Booleans_MutuallyExclusive()
     {
         // Arrange
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -261,7 +269,7 @@ public class MainWindowViewModelTests
     public void AreCamerasConnected_RequiresBothCameras()
     {
         // Arrange
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
         viewModel.UseSavedSessionForCalibration = false;
@@ -296,7 +304,7 @@ public class MainWindowViewModelTests
     public void CanCalibrate_RequiresMinimumPairs()
     {
         // Arrange
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
         viewModel.UseSavedSessionForCalibration = false;
@@ -321,7 +329,7 @@ public class MainWindowViewModelTests
     public void OpenSettings_TogglesIsSettingsOpen()
     {
         // Arrange
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -351,7 +359,7 @@ public class MainWindowViewModelTests
     public void SettingsVm_UsesSharedSettingsService()
     {
         // Arrange
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
 
         // Act
@@ -376,7 +384,7 @@ public class MainWindowViewModelTests
     => UiTest.Run(async () =>
     {
         // Arrange
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -400,7 +408,7 @@ public class MainWindowViewModelTests
     public async Task DisconnectCameras_ClearsCapturedPairsCount()
     {
         // Arrange
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -422,7 +430,7 @@ public class MainWindowViewModelTests
     public async Task DisconnectCameras_ClearsCalibration()
     {
         // Arrange
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -443,7 +451,7 @@ public class MainWindowViewModelTests
     public Task DisconnectCameras_StopsDetectionAndAutoCapture()
     => UiTest.Run(async () =>
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -472,7 +480,7 @@ public class MainWindowViewModelTests
     public void CanCalibrate_ReturnsFalse_WhenAutoCapturingIsTrue()
     {
         // Arrange
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -497,9 +505,7 @@ public class MainWindowViewModelTests
     => UiTest.Run(() =>
     {
         // Arrange
-        // Use fresh settings: other tests can persist the saved-session source mode.
-        var settingsService = new SettingsService(Path.Combine(Path.GetTempPath(),
-            $"LuminaCalib_CanCalibrate_{Guid.NewGuid():N}.json"));
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -523,7 +529,7 @@ public class MainWindowViewModelTests
     public void CanShowCaptureButton_ReturnsFalse_AfterCaptureComplete()
     {
         // Arrange
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -554,7 +560,7 @@ public class MainWindowViewModelTests
     public void CanShowCaptureButton_ReturnsTrue_DuringManualCapture()
     {
         // Arrange
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -579,7 +585,7 @@ public class MainWindowViewModelTests
     public void CanShowCaptureButton_ReturnsFalse_WhenCamerasNotConnected()
     {
         // Arrange
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -602,7 +608,7 @@ public class MainWindowViewModelTests
     public void CanShowCaptureButton_ReturnsFalse_DuringAutoCapture()
     {
         // Arrange
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -628,7 +634,7 @@ public class MainWindowViewModelTests
     public void CanChangeModeSelection_ReturnsFalse_DuringActiveWorkflow()
     {
         // Arrange
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -653,7 +659,7 @@ public class MainWindowViewModelTests
     public void CanChangeModeSelection_ReturnsTrue_WhenCamerasNotConnected()
     {
         // Arrange
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -676,7 +682,7 @@ public class MainWindowViewModelTests
     public void CanCalibrate_UseSavedSession_WorksIndependentlyOfAutoCapture()
     {
         // Arrange
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -702,7 +708,7 @@ public class MainWindowViewModelTests
     [Fact]
     public async Task CalibrateCommand_TogglesIsCalibrating_ForLiveCalibrationPath()
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -738,7 +744,7 @@ public class MainWindowViewModelTests
     [Fact]
     public async Task CalibrateCommand_TogglesIsCalibrating_ForSavedSessionPath()
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         settingsService.Settings.ActiveAutoSessionPath = Path.Combine(Path.GetTempPath(), $"missing-session-{Guid.NewGuid():N}");
 
         var synchronizer = new StereoSynchronizer();
@@ -785,7 +791,7 @@ public class MainWindowViewModelTests
     [Fact]
     public void IsConnectingCameras_DefaultsFalse()
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -800,7 +806,7 @@ public class MainWindowViewModelTests
     [Fact]
     public void CanShowConnectButton_WhenDisconnected_ReturnsTrue()
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -817,7 +823,7 @@ public class MainWindowViewModelTests
     [Fact]
     public void CanShowConnectButton_WhenConnecting_ReturnsFalse()
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -834,7 +840,7 @@ public class MainWindowViewModelTests
     [Fact]
     public void CanShowConnectButton_WhenConnected_ReturnsFalse()
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -853,7 +859,7 @@ public class MainWindowViewModelTests
     [Fact]
     public void CancelConnectionText_HasDefaultValue()
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -868,7 +874,7 @@ public class MainWindowViewModelTests
     [Fact]
     public void CancelConnectionText_IsLocalized_Russian()
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         settingsService.Settings.Language = "ru";
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
@@ -884,7 +890,7 @@ public class MainWindowViewModelTests
     [Fact]
     public void CancelConnectionText_IsLocalized_English()
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         settingsService.Settings.Language = "en";
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
@@ -900,7 +906,7 @@ public class MainWindowViewModelTests
     [Fact]
     public void CancelCameraConnectionCommand_Exists()
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -926,7 +932,7 @@ public class MainWindowViewModelTests
     [Fact]
     public void IsConnectingCameras_NotifiesCanShowConnectButton()
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -950,7 +956,7 @@ public class MainWindowViewModelTests
     public void Navigation_DepthMap_MutuallyExclusive()
     {
         // Arrange
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -983,7 +989,7 @@ public class MainWindowViewModelTests
     public void Constructor_Creates_DepthMapVm()
     {
         // Arrange
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
 
         // Act
@@ -1003,7 +1009,7 @@ public class MainWindowViewModelTests
     public void DepthMapTabText_IsInitialized()
     {
         // Arrange
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
 
         // Act
@@ -1022,7 +1028,7 @@ public class MainWindowViewModelTests
     [Fact]
     public void CanShowDetectionButton_IsVisibleOnlyOnCaptureStep()
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         settingsService.Settings.UseSavedSessionForCalibration = false;
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
@@ -1051,7 +1057,7 @@ public class MainWindowViewModelTests
     [Fact]
     public void DetectionToggleText_ReflectsCaptureState()
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         settingsService.Settings.Language = "en";
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
@@ -1080,7 +1086,7 @@ public class MainWindowViewModelTests
     [Fact]
     public void CanToggleDetection_RequiresCaptureStepAndAutoCaptureService()
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         settingsService.Settings.UseSavedSessionForCalibration = false;
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
@@ -1109,7 +1115,7 @@ public class MainWindowViewModelTests
     [Fact]
     public void CalibrateActionText_ReflectsComputationAndResultState()
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         settingsService.Settings.Language = "en";
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
@@ -1130,7 +1136,7 @@ public class MainWindowViewModelTests
     public Task DepthMap_EnableFails_WhenCamerasDisconnected()
     => UiTest.Run(() =>
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         settingsService.Settings.Language = "en";
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
@@ -1149,7 +1155,7 @@ public class MainWindowViewModelTests
     [Fact]
     public void CameraButtons_WhenOnlyOneCameraConnected_DisconnectVisibleCaptureDisabled()
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -1171,7 +1177,7 @@ public class MainWindowViewModelTests
     [Fact]
     public void CameraButtons_WhenNoCameraConnected_ConnectVisibleDisconnectHidden()
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         var synchronizer = new StereoSynchronizer();
         var viewModel = new MainWindowViewModel(settingsService, synchronizer);
 
@@ -1189,7 +1195,7 @@ public class MainWindowViewModelTests
     public Task DepthMap_EnableFails_WhenNoActiveDepthCalibration()
     => UiTest.Run(() =>
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         settingsService.Settings.Language = "en";
         settingsService.Settings.ActiveDepthMapCalibrationPath = string.Empty;
         settingsService.Settings.ActiveAutoCalibrationPath = string.Empty;
@@ -1290,7 +1296,7 @@ public class MainWindowViewModelTests
     [Fact]
     public void EmitLeftFrame_WhenCalibrationViewDisabled_DoesNotRaisePreviewEvent()
     {
-        var viewModel = new MainWindowViewModel(new SettingsService(), new StereoSynchronizer());
+        var viewModel = new MainWindowViewModel(CreateSettingsService(), new StereoSynchronizer());
         try
         {
             var emitMethod = typeof(MainWindowViewModel).GetMethod(
@@ -1316,7 +1322,7 @@ public class MainWindowViewModelTests
     [Fact]
     public void EmitRightFrame_WhenCalibrationViewEnabled_RaisesPreviewEvent()
     {
-        var viewModel = new MainWindowViewModel(new SettingsService(), new StereoSynchronizer());
+        var viewModel = new MainWindowViewModel(CreateSettingsService(), new StereoSynchronizer());
         try
         {
             var emitMethod = typeof(MainWindowViewModel).GetMethod(
@@ -1342,7 +1348,7 @@ public class MainWindowViewModelTests
     [Fact]
     public async Task CaptureFrame_UsesFallbackPair_WhenStrictPairIsMissingButWithinLimit()
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         settingsService.Settings.Language = "en";
 
         var synchronizer = new StereoSynchronizer(bufferCapacity: 10, toleranceMs: 50.0);
@@ -1372,7 +1378,7 @@ public class MainWindowViewModelTests
     [Fact]
     public async Task CaptureFrame_WhenClosestPairDeltaTooHigh_ShowsClearError()
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         settingsService.Settings.Language = "en";
 
         var synchronizer = new StereoSynchronizer(bufferCapacity: 10, toleranceMs: 50.0);
@@ -1401,7 +1407,7 @@ public class MainWindowViewModelTests
     [Fact]
     public void CurrentPatternDescriptorText_ForChessboard_ShowsInnerCorners()
     {
-        var settingsService = new SettingsService();
+        var settingsService = CreateSettingsService();
         settingsService.Settings.Language = "en";
         settingsService.Settings.BoardType = BoardType.Chessboard;
         settingsService.Settings.PatternWidth = 9;
