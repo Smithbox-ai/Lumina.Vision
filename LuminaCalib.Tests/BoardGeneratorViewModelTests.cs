@@ -12,15 +12,18 @@ namespace LuminaCalib.Tests;
 public class BoardGeneratorViewModelTests : IDisposable
 {
     private readonly BoardGeneratorViewModel _viewModel;
+    private readonly string _settingsPath = Path.Combine(Path.GetTempPath(), $"LuminaBoardVm_{Guid.NewGuid():N}.json");
 
     public BoardGeneratorViewModelTests()
     {
-        _viewModel = new BoardGeneratorViewModel();
+        _viewModel = new BoardGeneratorViewModel(new SettingsService(_settingsPath));
     }
 
     public void Dispose()
     {
         _viewModel.Dispose();
+        if (File.Exists(_settingsPath))
+            File.Delete(_settingsPath);
     }
 
     /// <summary>

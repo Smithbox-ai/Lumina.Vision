@@ -35,19 +35,25 @@ public sealed class CharucoBoardGenerator : IDisposable
     /// Алгоритм:
     /// 1. Создаётся ArUco-словарь по указанному типу.
     /// 2. Размеры квадратов и маркеров пересчитываются из мм в пиксели через DPI.
-    /// 3. Создаётся <see cref="CharucoBoard"/> и генерируется изображение.
+    /// 3. Создаётся <see cref="CharucoBoard"/> для детекции, а маркеры рисуются в целочисленных ROI.
     /// После вызова объекты словаря и доски сохраняются для <see cref="GetDetectionObjects"/>.
     /// </remarks>
     public Mat GenerateCharucoBoard(BoardGeneratorSettings settings)
     {
         ArgumentNullException.ThrowIfNull(settings);
 
+        _charucoBoard?.Dispose();
+        _charucoBoard = null;
+        _arucoDictionary?.Dispose();
+
         // Получаем идентификатор словаря и создаём ArUco-словарь
         int dictId = CalibrationHelpers.GetArucoDictId(settings.Dictionary);
         _arucoDictionary = new Dictionary((Dictionary.PredefinedDictionaryName)dictId);
 
         // Пересчитываем размеры из мм в пиксели через DPI
-        int squarePx = (int)(settings.SquareLength / 25.4f * settings.Dpi);
+        int squarePx = settings.SquareLengthPx;
+        int markerPx = (int)Math.Round(squarePx * settings.MarkerLengthRatio);
+        int markerMarginPx = (squarePx - markerPx) / 2;
 
         // Создаём объект CharucoBoard с физическими размерами
         _charucoBoard = new CharucoBoard(
@@ -57,16 +63,39 @@ public sealed class CharucoBoardGenerator : IDisposable
             settings.MarkerLength,
             _arucoDictionary);
 
-        var boardImage = new Mat();
-        
-        // Генерируем изображение доски с указанными отступами
-        _charucoBoard.GenerateImage(
-            new Size(settings.SquaresX * squarePx, settings.SquaresY * squarePx),
-            boardImage,
-            settings.Margin,
-            1);
+        var boardImage = GenerateChessboard(settings);
+        try
+        {
+            // GenerateImage в OpenCV независимо округляет координаты и размеры
+            // маркеров, что может вывести ROI за границы. Размещаем каждый маркер
+            // внутри белой клетки с целочисленным размером и отступом.
+            using var marker = new Mat();
+            int markerId = 0;
+            for (int y = 0; y < settings.SquaresY; y++)
+            {
+                for (int x = 0; x < settings.SquaresX; x++)
+                {
+                    if ((x + y) % 2 == 0)
+                        continue;
 
-        return boardImage;
+                    _arucoDictionary.GenerateImageMarker(markerId++, markerPx, marker, 1);
+                    var rect = new Rectangle(
+                        settings.Margin + x * squarePx + markerMarginPx,
+                        settings.Margin + y * squarePx + markerMarginPx,
+                        markerPx,
+                        markerPx);
+                    using var markerRegion = new Mat(boardImage, rect);
+                    marker.CopyTo(markerRegion);
+                }
+            }
+
+            return boardImage;
+        }
+        catch
+        {
+            boardImage.Dispose();
+            throw;
+        }
     }
 
     /// <summary>
@@ -79,9 +108,9 @@ public sealed class CharucoBoardGenerator : IDisposable
         ArgumentNullException.ThrowIfNull(settings);
 
         // Пересчитываем размеры из мм в пиксели
-        int squarePx = (int)(settings.SquareLength / 25.4f * settings.Dpi);
-        int widthPx = settings.SquaresX * squarePx + 2 * settings.Margin;
-        int heightPx = settings.SquaresY * squarePx + 2 * settings.Margin;
+        int squarePx = settings.SquareLengthPx;
+        int widthPx = settings.BoardWidthPx;
+        int heightPx = settings.BoardHeightPx;
 
         // Создаём одноканальное изображение и заливаем белым
         var board = new Mat(heightPx, widthPx, DepthType.Cv8U, 1);
@@ -101,7 +130,8 @@ public sealed class CharucoBoardGenerator : IDisposable
                         squarePx,
                         squarePx);
 
-                    CvInvoke.Rectangle(board, rect, new Emgu.CV.Structure.MCvScalar(0), -1);
+                    using var square = new Mat(board, rect);
+                    square.SetTo(new Emgu.CV.Structure.MCvScalar(0));
                 }
             }
         }

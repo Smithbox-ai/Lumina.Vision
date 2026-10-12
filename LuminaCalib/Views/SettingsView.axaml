@@ -469,6 +469,27 @@
                                            IsVisible="{Binding DetectionScaleError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
                             </Grid>
                             
+                            <CheckBox Name="UseRationalModelCheckBox"
+                                      Content="{Binding UseRationalModelText}"
+                                      IsChecked="{Binding Settings.UseRationalModel, Mode=TwoWay}"/>
+                            <TextBlock Text="{Binding RationalModelHintText}"
+                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       TextWrapping="Wrap"/>
+                            <StackPanel Spacing="8">
+                              <TextBlock Text="{Binding RectificationAlphaLabelText}"
+                                         Foreground="{StaticResource TextSecondaryBrush}"/>
+                              <NumericUpDown Name="RectificationAlphaInput"
+                                             Value="{Binding Settings.RectificationAlpha, Mode=TwoWay}"
+                                             Minimum="-1" Maximum="1" Increment="0.1" FormatString="F1"
+                                             Width="100" HorizontalAlignment="Left"/>
+                              <TextBlock Text="{Binding RectificationAlphaError}"
+                                         Classes="validation-error-text"
+                                         IsVisible="{Binding RectificationAlphaError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                              <TextBlock Text="{Binding RectificationAlphaHintText}"
+                                         Foreground="{StaticResource TextSecondaryBrush}"
+                                         TextWrapping="Wrap"/>
+                            </StackPanel>
+
                             <Button Content="{Binding GenerateBoardButtonText}"
                                     Command="{Binding OpenBoardGeneratorCommand}"
                                     Classes="secondary"

@@ -2433,6 +2433,7 @@ public partial class MainWindowViewModel : ViewModelBase
     /// <summary>Запускает калибровку для указанного режима.</summary>
     private CalibrationResult RunCalibrationForMode(CalibrationMode mode, CalibrationEngine calibrationEngine)
     {
+        ApplyCalibrationSettings(calibrationEngine);
         return mode switch
         {
             CalibrationMode.Auto => calibrationEngine.CalibrateFullStereo(),
@@ -3222,8 +3223,14 @@ public partial class MainWindowViewModel : ViewModelBase
             settings.SquareSize,
             settings.SquareSize * settings.MarkerSizeRatio);
         _calibrationEngine = new CalibrationEngine(_cornerDetector);
-        if (settings.UseRationalModel)
-            _calibrationEngine.IntrinsicCalibrationFlags = CalibType.RationalModel;
+        _calibrationEngine.IntrinsicCalibrationFlags = settings.UseRationalModel ? CalibType.RationalModel : CalibType.Default;
+    }
+
+    private void ApplyCalibrationSettings(CalibrationEngine engine)
+    {
+        var settings = _settingsService.Settings;
+        engine.IntrinsicCalibrationFlags = settings.UseRationalModel ? CalibType.RationalModel : CalibType.Default;
+        engine.RectificationAlpha = settings.RectificationAlpha;
     }
 
     private void ResetWorkflowState(bool preserveCaptured = false)

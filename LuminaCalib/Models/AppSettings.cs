@@ -79,7 +79,7 @@ public partial class AppSettings : ObservableObject
     /// Тип калибровочной доски (шахматная или ChArUco).
     /// </summary>
     [ObservableProperty]
-    private BoardType _boardType = BoardType.Chessboard;
+    private BoardType _boardType = CalibrationBoardDefaults.Type;
 
     /// <summary>
     /// Ширина паттерна.
@@ -87,7 +87,7 @@ public partial class AppSettings : ObservableObject
     /// Для ChArUco — количество клеток (квадратов) по горизонтали.
     /// </summary>
     [ObservableProperty]
-    private int _patternWidth = 9;
+    private int _patternWidth = CalibrationBoardDefaults.SquaresX;
 
     /// <summary>
     /// Высота паттерна.
@@ -95,25 +95,25 @@ public partial class AppSettings : ObservableObject
     /// Для ChArUco — количество клеток (квадратов) по вертикали.
     /// </summary>
     [ObservableProperty]
-    private int _patternHeight = 6;
+    private int _patternHeight = CalibrationBoardDefaults.SquaresY;
 
     /// <summary>
     /// Размер стороны квадрата в миллиметрах.
     /// </summary>
     [ObservableProperty]
-    private float _squareSize = 25f; // мм
+    private float _squareSize = CalibrationBoardDefaults.SquareLengthMm;
 
     /// <summary>
     /// Отношение размера маркера к размеру квадрата для ChArUco (0.0–1.0).
     /// </summary>
     [ObservableProperty]
-    private float _markerSizeRatio = 0.73f; // Для ChArUco: размер маркера как доля от квадрата
+    private float _markerSizeRatio = CalibrationBoardDefaults.MarkerLengthRatio;
 
     /// <summary>
     /// Словарь ArUco-маркеров для доски ChArUco.
     /// </summary>
     [ObservableProperty]
-    private CharucoDictionary _charucoDictionary = CharucoDictionary.Dict6x6_250;
+    private CharucoDictionary _charucoDictionary = CalibrationBoardDefaults.Dictionary;
 
     // === Расширенные настройки камер ===
     
@@ -205,6 +205,12 @@ public partial class AppSettings : ObservableObject
     /// </summary>
     [ObservableProperty]
     private bool _useRationalModel;
+
+    /// <summary>
+    /// Масштаб ректификации: 0 — только валидные пиксели, 1 — всё поле зрения, -1 — автоматический выбор.
+    /// </summary>
+    [ObservableProperty]
+    private double _rectificationAlpha;
 
     // === Активные ресурсы ===
 

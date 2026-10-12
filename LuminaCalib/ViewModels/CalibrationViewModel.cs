@@ -254,8 +254,7 @@ public partial class CalibrationViewModel : ViewModelBase, IDisposable
             settings.SquareSize * settings.MarkerSizeRatio);
 
         _calibrationEngine = new CalibrationEngine(_cornerDetector);
-        if (settings.UseRationalModel)
-            _calibrationEngine.IntrinsicCalibrationFlags = CalibType.RationalModel;
+        _calibrationEngine.IntrinsicCalibrationFlags = settings.UseRationalModel ? CalibType.RationalModel : CalibType.Default;
         _calibrationEngine.OnStageChanged += stage =>
             RunOnUiThread(() => CalibrationStatusMessage = stage);
         _rectifier = new StereoRectifier();
@@ -559,6 +558,7 @@ public partial class CalibrationViewModel : ViewModelBase, IDisposable
 
         try
         {
+            ApplyCalibrationSettings();
             await Task.Run(() =>
             {
                 _currentCalibration = CalibrationMode switch
@@ -591,6 +591,13 @@ public partial class CalibrationViewModel : ViewModelBase, IDisposable
             CalibrationStatusMessage = $"Calibration failed: {ex.Message}";
             CurrentState = CalibrationState.Capturing;
         }
+    }
+
+    private void ApplyCalibrationSettings()
+    {
+        var settings = _settingsService.Settings;
+        _calibrationEngine!.IntrinsicCalibrationFlags = settings.UseRationalModel ? CalibType.RationalModel : CalibType.Default;
+        _calibrationEngine.RectificationAlpha = settings.RectificationAlpha;
     }
 
     /// <summary>Производит калибровку в режиме StereoOnly, используя существующий файл внутренних параметров.</summary>

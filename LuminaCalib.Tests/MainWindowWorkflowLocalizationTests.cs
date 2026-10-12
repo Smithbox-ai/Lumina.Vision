@@ -116,6 +116,13 @@ public sealed class MainWindowWorkflowLocalizationTests
                     }));
 
             var settingsService = new SettingsService(settingsPath);
+            // The session uses a legacy board; make compatibility explicit instead of relying on defaults.
+            settingsService.Settings.BoardType = manifest.BoardType;
+            settingsService.Settings.PatternWidth = manifest.PatternWidth;
+            settingsService.Settings.PatternHeight = manifest.PatternHeight;
+            settingsService.Settings.SquareSize = manifest.SquareSizeMm;
+            settingsService.Settings.MarkerSizeRatio = manifest.MarkerSizeRatio;
+            settingsService.Settings.CharucoDictionary = manifest.CharucoDictionary;
             settingsService.Settings.CaptureSessionsPath = sessionsPath;
             settingsService.Settings.ActiveAutoSessionPath = sessionDirectory;
             settingsService.Settings.UseSavedSessionForCalibration = true;

@@ -367,10 +367,10 @@ public class SettingsViewModelTests
     }
 
     /// <summary>
-    /// Validates that Reset command restores defaults.
+    /// Validates that Reset restores general defaults without changing the board tab.
     /// </summary>
     [Fact]
-    public void SettingsViewModel_ResetCommand_RestoresDefaults()
+    public void SettingsViewModel_ResetCommand_RestoresGeneralDefaultsOnly()
     {
         // Arrange
         var settingsPath = CreateTempSettingsPath();
@@ -386,7 +386,7 @@ public class SettingsViewModelTests
 
         // Assert - Settings should be reset to defaults
         Assert.Equal("ru", viewModel.Settings.Language); // Default language
-        Assert.NotEqual(999, viewModel.Settings.PatternWidth);
+        Assert.Equal(999, viewModel.Settings.PatternWidth);
     }
 
     // === DetectionScale Validation Tests (Phase 5) ===

@@ -35,6 +35,9 @@ public partial class BoardGeneratorViewModel : ViewModelBase, IDisposable
     /// <summary>Семафор для предотвращения одновременной генерации досок.</summary>
     private readonly SemaphoreSlim _generationLock = new(1, 1);
 
+    /// <summary>Согласует запуск генерации с освобождением её ресурсов.</summary>
+    private readonly object _lifetimeLock = new();
+
     /// <summary>Текущая сгенерированная доска (матрица OpenCV).</summary>
     private Mat? _currentBoard;
 
@@ -53,42 +56,42 @@ public partial class BoardGeneratorViewModel : ViewModelBase, IDisposable
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(BoardWidthMm))]
     [NotifyPropertyChangedFor(nameof(BoardHeightMm))]
-    private int _squaresX = 9;
+    private int _squaresX = CalibrationBoardDefaults.SquaresX;
 
     /// <summary>Количество квадратов по вертикали.</summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(BoardWidthMm))]
     [NotifyPropertyChangedFor(nameof(BoardHeightMm))]
-    private int _squaresY = 6;
+    private int _squaresY = CalibrationBoardDefaults.SquaresY;
 
     /// <summary>Размер одного квадрата в миллиметрах.</summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(BoardWidthMm))]
     [NotifyPropertyChangedFor(nameof(BoardHeightMm))]
     [NotifyPropertyChangedFor(nameof(MarkerLength))]
-    private float _squareLength = 30f;
+    private float _squareLength = CalibrationBoardDefaults.SquareLengthMm;
 
     /// <summary>Соотношение размера маркера к размеру квадрата (0..1).</summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(MarkerLength))]
-    private float _markerLengthRatio = 0.73f;
+    private float _markerLengthRatio = CalibrationBoardDefaults.MarkerLengthRatio;
 
     /// <summary>Выбранный словарь ArUco для генерации маркеров.</summary>
     [ObservableProperty]
-    private CharucoDictionary _dictionary = CharucoDictionary.Dict6x6_250;
+    private CharucoDictionary _dictionary = CalibrationBoardDefaults.Dictionary;
 
     /// <summary>Разрешение генерации (точек на дюйм) для печати.</summary>
     [ObservableProperty]
-    private int _dpi = 300;
+    private int _dpi = CalibrationBoardDefaults.Dpi;
 
     /// <summary>Отступ от краёв доски в пикселях.</summary>
     [ObservableProperty]
-    private int _margin = 50;
+    private int _margin = CalibrationBoardDefaults.MarginPx;
 
     /// <summary>Тип калибровочной доски (ChArUco или Chessboard).</summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsCharucoBoard))]
-    private BoardType _boardType = BoardType.ChArUco;
+    private BoardType _boardType = CalibrationBoardDefaults.Type;
 
     // === Вычисляемые свойства ===
 
@@ -224,6 +227,16 @@ public partial class BoardGeneratorViewModel : ViewModelBase, IDisposable
         _generator = new CharucoBoardGenerator();
         _pdfExporter = new PdfExportService();
 
+        // Заполняем поля до подписки/показа UI, не запуская генерацию из конструктора.
+        var settings = _settingsService.Settings;
+        _boardType = settings.BoardType;
+        int extraSquare = settings.BoardType == BoardType.Chessboard ? 1 : 0;
+        _squaresX = settings.PatternWidth + extraSquare;
+        _squaresY = settings.PatternHeight + extraSquare;
+        _squareLength = settings.SquareSize;
+        _markerLengthRatio = settings.MarkerSizeRatio;
+        _dictionary = settings.CharucoDictionary;
+
         _settingsService.Settings.PropertyChanged += OnSettingsChanged;
         UpdateLocalizedUiTexts();
         StatusMessage = L("Configure board settings and click Generate", "Настройте параметры доски и нажмите Сгенерировать");
@@ -269,12 +282,17 @@ public partial class BoardGeneratorViewModel : ViewModelBase, IDisposable
     [RelayCommand]
     private async Task GeneratePreviewAsync()
     {
-        // Попытка захватить семафор без ожидания
-        if (!await _generationLock.WaitAsync(0))
+        lock (_lifetimeLock)
         {
-            // Генерация уже идёт — отложить повторную
-            _pendingRegeneration = true;
-            return;
+            if (_disposed)
+                return;
+
+            // Генерация уже идёт — отложить повторную.
+            if (!_generationLock.Wait(0))
+            {
+                _pendingRegeneration = true;
+                return;
+            }
         }
 
         try
@@ -283,10 +301,17 @@ public partial class BoardGeneratorViewModel : ViewModelBase, IDisposable
             {
                 _pendingRegeneration = false;
 
-                _previewCts?.Cancel();
-                _previewCts?.Dispose();
-                _previewCts = new CancellationTokenSource();
-                var token = _previewCts.Token;
+                CancellationToken token;
+                lock (_lifetimeLock)
+                {
+                    if (_disposed)
+                        break;
+
+                    _previewCts?.Cancel();
+                    _previewCts?.Dispose();
+                    _previewCts = new CancellationTokenSource();
+                    token = _previewCts.Token;
+                }
 
                 IsGenerating = true;
                 StatusMessage = L("Generating preview...", "Генерация предпросмотра...");
@@ -335,7 +360,12 @@ public partial class BoardGeneratorViewModel : ViewModelBase, IDisposable
         }
         finally
         {
-            _generationLock.Release();
+            lock (_lifetimeLock)
+            {
+                _generationLock.Release();
+                if (_disposed)
+                    DisposeResources();
+            }
         }
     }
 
@@ -595,17 +625,32 @@ public partial class BoardGeneratorViewModel : ViewModelBase, IDisposable
 
     public void Dispose()
     {
-        if (_disposed)
+        lock (_lifetimeLock)
         {
-            return;
+            if (_disposed)
+                return;
+
+            _disposed = true;
+            _pendingRegeneration = false;
+            _settingsService.Settings.PropertyChanged -= OnSettingsChanged;
+            _previewCts?.Cancel();
+
+            // Активная генерация освободит ресурсы в finally: нативные Mat
+            // и генератор нельзя уничтожать, пока worker/предпросмотр их использует.
+            if (_generationLock.Wait(0))
+            {
+                _generationLock.Release();
+                DisposeResources();
+            }
         }
+    }
 
-        _disposed = true;
-
-        _settingsService.Settings.PropertyChanged -= OnSettingsChanged;
-        _previewCts?.Cancel();
+    private void DisposeResources()
+    {
         _previewCts?.Dispose();
+        _previewCts = null;
         _currentBoard?.Dispose();
+        _currentBoard = null;
         PreviewImage?.Dispose();
         _generator.Dispose();
         _generationLock.Dispose();

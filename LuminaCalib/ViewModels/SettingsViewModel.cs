@@ -169,6 +169,18 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     [ObservableProperty]
     private string _detectionScaleLabelText = "Detection Scale:";
 
+    [ObservableProperty]
+    private string _useRationalModelText = "Rational distortion model";
+
+    [ObservableProperty]
+    private string _rationalModelHintText = string.Empty;
+
+    [ObservableProperty]
+    private string _rectificationAlphaLabelText = "Rectification scale (alpha):";
+
+    [ObservableProperty]
+    private string _rectificationAlphaHintText = string.Empty;
+
     /// <summary>Локализованная метка «Начальная задержка переподключения».</summary>
     [ObservableProperty]
     private string _reconnectInitialDelayLabelText = "Reconnect Initial Delay (ms):";
@@ -269,6 +281,9 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     [ObservableProperty]
     private string? _detectionScaleError;
 
+    [ObservableProperty]
+    private string? _rectificationAlphaError;
+
     /// <summary>Конструктор по умолчанию (design-time).</summary>
     public SettingsViewModel() : this(new SettingsService())
     {
@@ -303,12 +318,55 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         StatusMessage = L("Settings applied", "Настройки применены");
     }
 
-    /// <summary>Сбрасывает настройки к значениям по умолчанию.</summary>
+    /// <summary>Сбрасывает настройки активной вкладки к значениям по умолчанию.</summary>
     [RelayCommand]
     private void Reset()
     {
-        _settingsService.Reset();
-        OnPropertyChanged(nameof(Settings));
+        var defaults = new AppSettings();
+        var settings = Settings;
+        switch (SelectedTabIndex)
+        {
+            case 0: // Общие
+                settings.Language = defaults.Language;
+                settings.AutoSaveCalibration = defaults.AutoSaveCalibration;
+                settings.CalibrationDataPath = defaults.CalibrationDataPath;
+                settings.CaptureSessionsPath = defaults.CaptureSessionsPath;
+                break;
+            case 1: // Камеры, включая расширенные параметры
+                settings.LeftCameraUrl = defaults.LeftCameraUrl;
+                settings.LeftCameraLogin = defaults.LeftCameraLogin;
+                settings.LeftCameraPassword = defaults.LeftCameraPassword;
+                settings.RightCameraUrl = defaults.RightCameraUrl;
+                settings.RightCameraLogin = defaults.RightCameraLogin;
+                settings.RightCameraPassword = defaults.RightCameraPassword;
+                settings.TransportProtocol = defaults.TransportProtocol;
+                settings.CameraBackend = defaults.CameraBackend;
+                settings.HwAcceleration = defaults.HwAcceleration;
+                settings.BufferSize = defaults.BufferSize;
+                settings.CameraNoFrameTimeoutMs = defaults.CameraNoFrameTimeoutMs;
+                settings.CameraReconnectInitialDelayMs = defaults.CameraReconnectInitialDelayMs;
+                settings.CameraReconnectMaxDelayMs = defaults.CameraReconnectMaxDelayMs;
+                settings.CameraConnectionTimeoutMs = defaults.CameraConnectionTimeoutMs;
+                break;
+            case 2: // Доска и параметры детекции/захвата на этой вкладке
+                settings.BoardType = defaults.BoardType;
+                settings.PatternWidth = defaults.PatternWidth;
+                settings.PatternHeight = defaults.PatternHeight;
+                settings.SquareSize = defaults.SquareSize;
+                settings.MarkerSizeRatio = defaults.MarkerSizeRatio;
+                settings.CharucoDictionary = defaults.CharucoDictionary;
+                settings.RequiredFrames = defaults.RequiredFrames;
+                settings.SyncToleranceMs = defaults.SyncToleranceMs;
+                settings.DetectionIntervalMs = defaults.DetectionIntervalMs;
+                settings.DetectionScale = defaults.DetectionScale;
+                settings.UseRationalModel = defaults.UseRationalModel;
+                settings.RectificationAlpha = defaults.RectificationAlpha;
+                break;
+            default:
+                return;
+        }
+
+        ValidateSettings();
     }
 
     /// <summary>Тестирует подключение к левой камере.</summary>
@@ -520,11 +578,14 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
             ? L("Must be at least 0 ms", "Должно быть не менее 0 мс") : null;
         DetectionScaleError = Settings.DetectionScale is < 0.1f or > 1.0f
             ? L("Must be between 0.1 and 1.0", "Должно быть от 0.1 до 1.0") : null;
+        RectificationAlphaError = !double.IsFinite(Settings.RectificationAlpha) ||
+            (Settings.RectificationAlpha != -1 && (Settings.RectificationAlpha < 0 || Settings.RectificationAlpha > 1))
+            ? L("Use -1 (auto) or a value from 0 to 1", "Укажите -1 (авто) или значение от 0 до 1") : null;
 
         CanSave = LeftUrlError == null && RightUrlError == null &&
                   SquareSizeError == null && PatternWidthError == null &&
                   PatternHeightError == null && SyncToleranceError == null &&
-                  DetectionIntervalError == null && DetectionScaleError == null;
+                  DetectionIntervalError == null && DetectionScaleError == null && RectificationAlphaError == null;
     }
 
     /// <summary>Обновляет все локализованные тексты UI.</summary>
@@ -574,6 +635,14 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         SyncToleranceLabelText = L("Sync Tolerance (ms):", "Допуск синхронизации (мс):");
         DetectionIntervalLabelText = L("Detection Interval (ms):", "Интервал детекции (мс):");
         DetectionScaleLabelText = L("Detection Scale:", "Масштаб детекции:");
+        UseRationalModelText = L("Rational distortion model", "Рациональная модель дисторсии");
+        RationalModelHintText = L(
+            "For strong lens distortion. Compare both models on separate check frames, especially near the image edges.",
+            "Для выраженной дисторсии объектива. Сравните обе модели на отдельных проверочных кадрах, особенно по краям.");
+        RectificationAlphaLabelText = L("Rectification scale (alpha):", "Масштаб ректификации (alpha):");
+        RectificationAlphaHintText = L(
+            "0: no black borders (cropped view); 1: full field of view; -1: automatic. Applies to the next calibration.",
+            "0: без чёрных полей (с обрезкой); 1: всё поле зрения; -1: авто. Применяется при следующей калибровке.");
         GenerateBoardButtonText = L("Generate ChArUco Board...", "Сгенерировать доску ChArUco...");
 
         ResetDefaultsButtonText = L("Reset to Defaults", "Сбросить по умолчанию");

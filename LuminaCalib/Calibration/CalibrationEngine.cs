@@ -64,6 +64,22 @@ public sealed class CalibrationEngine : IDisposable
     /// </summary>
     public CalibType IntrinsicCalibrationFlags { get; set; } = CalibType.Default;
 
+    private double _rectificationAlpha;
+
+    /// <summary>Масштаб ректификации: -1 (авто) или 0..1; по умолчанию 0 (без чёрных полей).</summary>
+    public double RectificationAlpha
+    {
+        get => _rectificationAlpha;
+        set
+        {
+            if (!double.IsFinite(value) || (value != -1 && (value < 0 || value > 1)))
+            {
+                throw new ArgumentOutOfRangeException(nameof(value), "Rectification alpha must be -1 or between 0 and 1.");
+            }
+            _rectificationAlpha = value;
+        }
+    }
+
     /// <summary>
     /// Количество захваченных стерео-пар изображений.
     /// </summary>
@@ -387,7 +403,7 @@ public sealed class CalibrationEngine : IDisposable
                     distCoeffsRight,
                     _imageSize,
                     R, T, E, F,
-                    CalibType.FixIntrinsic,
+                    GetStereoCalibrationFlags(distCoeffsLeft, distCoeffsRight),
                     new MCvTermCriteria(100, 1e-6));
             }
 
@@ -409,7 +425,7 @@ public sealed class CalibrationEngine : IDisposable
                 R, T,
                 R1, R2, P1, P2, Q,
                 StereoRectifyFlags,
-                -1,
+                RectificationAlpha,
                 _imageSize,
                 ref validPixRoi1,
                 ref validPixRoi2);
@@ -685,7 +701,7 @@ public sealed class CalibrationEngine : IDisposable
             T,
             E,
             F,
-            CalibType.FixIntrinsic,
+            GetStereoCalibrationFlags(distCoeffsLeft, distCoeffsRight),
             new MCvTermCriteria(100, 1e-6));
 
         OnProgress?.Invoke(70, 100);
@@ -713,7 +729,7 @@ public sealed class CalibrationEngine : IDisposable
             P2,
             Q,
             StereoRectifyFlags,
-            -1,
+            RectificationAlpha,
             _imageSize,
             ref validPixRoi1,
             ref validPixRoi2);
@@ -740,6 +756,21 @@ public sealed class CalibrationEngine : IDisposable
             ImagePairCount = _leftImagePoints.Count,
             CalibrationDate = DateTime.Now
         };
+    }
+
+    private static CalibType GetStereoCalibrationFlags(Mat distCoeffsLeft, Mat distCoeffsRight)
+    {
+        // Even with FixIntrinsic, OpenCV truncates extended distortion unless its model is enabled.
+        // Infer from supplied intrinsics so StereoOnly preserves a loaded calibration independently of UI settings.
+        long coefficientCount = Math.Max(distCoeffsLeft.Total.ToInt64(), distCoeffsRight.Total.ToInt64());
+        var flags = CalibType.FixIntrinsic;
+        if (coefficientCount >= 8)
+            flags |= CalibType.RationalModel;
+        if (coefficientCount >= 12)
+            flags |= CalibType.ThinPrismModel;
+        if (coefficientCount >= 14)
+            flags |= CalibType.TiltedModel;
+        return flags;
     }
 
     /// <summary>
