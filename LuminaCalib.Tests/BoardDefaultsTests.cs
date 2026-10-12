@@ -26,11 +26,12 @@ public sealed class BoardDefaultsTests : IDisposable
         using var vm = new BoardGeneratorViewModel(new SettingsService(_settingsPath));
 
         Assert.Equal(BoardType.ChArUco, app.BoardType);
-        Assert.Equal(10, app.PatternWidth);
-        Assert.Equal(5, app.PatternHeight);
+        Assert.Equal(6, app.PatternWidth);
+        Assert.Equal(3, app.PatternHeight);
         Assert.Equal(10f, app.SquareSize);
         Assert.Equal(0.7f, app.MarkerSizeRatio);
         Assert.Equal(CharucoDictionary.Dict4x4_50, app.CharucoDictionary);
+        Assert.Equal(1f, app.DetectionScale);
         Assert.Equal(app.PatternWidth, board.SquaresX);
         Assert.Equal(app.PatternHeight, board.SquaresY);
         Assert.Equal(app.SquareSize, board.SquareLength);
@@ -81,14 +82,16 @@ public sealed class BoardDefaultsTests : IDisposable
         service.Settings.PatternWidth = 17;
         service.Settings.SquareSize = 25f;
         service.Settings.BoardType = BoardType.Chessboard;
+        service.Settings.DetectionScale = 0.5f;
 
         service.Reset();
         using var vm = new BoardGeneratorViewModel(service);
 
         Assert.Equal(BoardType.ChArUco, service.Settings.BoardType);
-        Assert.Equal(10, service.Settings.PatternWidth);
-        Assert.Equal(5, service.Settings.PatternHeight);
+        Assert.Equal(6, service.Settings.PatternWidth);
+        Assert.Equal(3, service.Settings.PatternHeight);
         Assert.Equal(10f, service.Settings.SquareSize);
+        Assert.Equal(1f, service.Settings.DetectionScale);
         Assert.Equal(service.Settings.PatternWidth, vm.SquaresX);
         Assert.Equal(service.Settings.PatternHeight, vm.SquaresY);
         Assert.Equal(service.Settings.SquareSize, vm.SquareLength);
@@ -136,8 +139,8 @@ public sealed class BoardDefaultsTests : IDisposable
         using var generator = new CharucoBoardGenerator();
         using var image = generator.GenerateCharucoBoard(settings);
 
-        Assert.Equal(1280, image.Width);
-        Assert.Equal(690, image.Height);
+        Assert.Equal(808, image.Width);
+        Assert.Equal(454, image.Height);
         Assert.Equal(settings.BoardWidthPx, image.Width);
         Assert.Equal(settings.BoardHeightPx, image.Height);
         var objects = generator.GetDetectionObjects();
@@ -150,7 +153,7 @@ public sealed class BoardDefaultsTests : IDisposable
 
         EmguCharucoDetection.DetectBoard(detector, image, corners, ids);
 
-        Assert.Equal(36, corners.Size);
-        Assert.Equal(Enumerable.Range(0, 36), ids.ToArray().Order());
+        Assert.Equal(10, corners.Size);
+        Assert.Equal(Enumerable.Range(0, 10), ids.ToArray().Order());
     }
 }

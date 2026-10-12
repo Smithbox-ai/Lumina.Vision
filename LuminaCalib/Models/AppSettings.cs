@@ -198,7 +198,7 @@ public partial class AppSettings : ObservableObject
     /// Масштаб изображения для детекции паттерна (0.1–1.0). Меньше — быстрее, но менее точно.
     /// </summary>
     [ObservableProperty]
-    private float _detectionScale = 0.5f;
+    private float _detectionScale = CalibrationBoardDefaults.DetectionScale;
 
     /// <summary>
     /// Использовать рациональную модель дисторсии (k4, k5, k6) для линз со значительной бочкообразной/подушкообразной дисторсией.
