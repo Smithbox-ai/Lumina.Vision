@@ -45,6 +45,14 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
     public event Action? RequestFolderPicker;
     /// <summary>Запрос открытия диалога выбора папки сессий захвата.</summary>
     public event Action? RequestCaptureSessionsFolderPicker;
+    /// <summary>Запрос открытия диалога выбора папки ректифицированных снимков.</summary>
+    public event Action? RequestScreenshotsFolderPicker;
+
+    [ObservableProperty]
+    private string _screenshotsPathLabelText = "Screenshots folder:";
+
+    [ObservableProperty]
+    private string _screenshotsPathHintText = "Rectified stereo pairs are saved as two full-resolution PNGs.";
     
     /// <summary>Запрос перехода на вкладку генератора досок.</summary>
     public event Action? RequestNavigateToBoardGenerator;
@@ -331,6 +339,7 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
                 settings.AutoSaveCalibration = defaults.AutoSaveCalibration;
                 settings.CalibrationDataPath = defaults.CalibrationDataPath;
                 settings.CaptureSessionsPath = defaults.CaptureSessionsPath;
+                settings.ScreenshotsPath = defaults.ScreenshotsPath;
                 break;
             case 1: // Камеры, включая расширенные параметры
                 settings.LeftCameraUrl = defaults.LeftCameraUrl;
@@ -516,6 +525,9 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         RequestCaptureSessionsFolderPicker?.Invoke();
     }
 
+    [RelayCommand]
+    private void BrowseScreenshotsPath() => RequestScreenshotsFolderPicker?.Invoke();
+
     /// <summary>Инициирует переход к генератору калибровочной доски.</summary>
     [RelayCommand]
     private void OpenBoardGenerator()
@@ -602,6 +614,8 @@ public partial class SettingsViewModel : ViewModelBase, IDisposable
         AutoSaveCheckText = L("Save calibration automatically", "Сохранять калибровку автоматически");
         DataPathLabelText = L("Data Path:", "Путь к калибровкам:");
         CaptureSessionsPathLabelText = L("Capture Sessions Path:", "Путь к сессиям снимков:");
+        ScreenshotsPathLabelText = L("Screenshots folder:", "Папка снимков:");
+        ScreenshotsPathHintText = L("Rectified stereo pairs are saved as two full-resolution PNGs.", "Ректифицированные стереопары сохраняются как два PNG в исходном разрешении.");
         BrowseButtonText = L("Browse", "Обзор");
 
         LeftCameraTitleText = L("Left Camera", "Левая камера");

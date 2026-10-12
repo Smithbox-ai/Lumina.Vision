@@ -66,6 +66,7 @@ namespace LuminaCalib.Views
             {
                 _previousViewModel.SettingsVm.RequestFolderPicker -= OnRequestFolderPicker;
                 _previousViewModel.SettingsVm.RequestCaptureSessionsFolderPicker -= OnRequestCaptureSessionsFolderPicker;
+                _previousViewModel.SettingsVm.RequestScreenshotsFolderPicker -= OnRequestScreenshotsFolderPicker;
                 _previousViewModel.SettingsVm.RequestNavigateToBoardGenerator -= OnRequestNavigateToBoardGenerator;
                 _previousViewModel.SettingsVm.RequestClose -= OnRequestCloseSettings;
                 _previousViewModel.OnLeftFrameReceived -= OnLeftFrameReceived;
@@ -79,6 +80,7 @@ namespace LuminaCalib.Views
                 // Подписываемся на события SettingsVm
                 vm.SettingsVm.RequestFolderPicker += OnRequestFolderPicker;
                 vm.SettingsVm.RequestCaptureSessionsFolderPicker += OnRequestCaptureSessionsFolderPicker;
+                vm.SettingsVm.RequestScreenshotsFolderPicker += OnRequestScreenshotsFolderPicker;
                 vm.SettingsVm.RequestNavigateToBoardGenerator += OnRequestNavigateToBoardGenerator;
                 vm.SettingsVm.RequestClose += OnRequestCloseSettings;
                 vm.RequestOpenAbout += OnRequestOpenAbout;
@@ -156,6 +158,27 @@ namespace LuminaCalib.Views
             catch (Exception ex)
             {
                 ExceptionLogger.LogException(ex, "MainWindow.CaptureSessionsFolderPicker");
+            }
+        }
+
+        private async void OnRequestScreenshotsFolderPicker()
+        {
+            try
+            {
+                if (DataContext is not MainWindowViewModel vm) return;
+                var folders = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+                {
+                    Title = IsEnglish(vm) ? "Select Screenshots Folder" : "Выберите папку снимков",
+                    AllowMultiple = false
+                });
+                if (folders.Count > 0 && folders[0].TryGetLocalPath() is { } path)
+                    vm.SettingsVm.Settings.ScreenshotsPath = path;
+            }
+            catch (Exception ex)
+            {
+                ExceptionLogger.LogException(ex, "MainWindow.ScreenshotsFolderPicker");
+                NotificationService.Instance.ShowError(_previousViewModel != null && IsEnglish(_previousViewModel)
+                    ? "Could not select screenshots folder." : "Не удалось выбрать папку снимков.");
             }
         }
 
@@ -569,6 +592,7 @@ namespace LuminaCalib.Views
             {
                 _previousViewModel.SettingsVm.RequestFolderPicker -= OnRequestFolderPicker;
                 _previousViewModel.SettingsVm.RequestCaptureSessionsFolderPicker -= OnRequestCaptureSessionsFolderPicker;
+                _previousViewModel.SettingsVm.RequestScreenshotsFolderPicker -= OnRequestScreenshotsFolderPicker;
                 _previousViewModel.SettingsVm.RequestNavigateToBoardGenerator -= OnRequestNavigateToBoardGenerator;
                 _previousViewModel.SettingsVm.RequestClose -= OnRequestCloseSettings;
                 _previousViewModel.RequestOpenAbout -= OnRequestOpenAbout;

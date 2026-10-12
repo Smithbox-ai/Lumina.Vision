@@ -827,6 +827,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _reconnectStatusTimer.Tick += OnReconnectStatusTimerTick;
 
         AttachSettings(_settingsService.Settings);
+        PropertyChanged += OnScreenshotStateChanged;
     }
 
     // === Обработчики событий кадров ===
@@ -848,6 +849,7 @@ public partial class MainWindowViewModel : ViewModelBase
         try
         {
             Volatile.Write(ref _lastStereoPairWidth, pair.Left.Image.Width);
+            SupplyScreenshotPair(pair);
             Volatile.Write(ref _lastStereoPairHeight, pair.Left.Image.Height);
 
             // Подача кадра в сервис автозахвата (клон для независимого владения)
@@ -2939,6 +2941,8 @@ public partial class MainWindowViewModel : ViewModelBase
     /// <summary>Сбрасывает кэшированный ректификатор предпросмотра.</summary>
     private void ResetPreviewRectifier()
     {
+        CancelScreenshotWait();
+        RefreshScreenshotUi();
         lock (_rectificationLock)
         {
             _previewCalibration?.Dispose();
@@ -3498,6 +3502,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private void UpdateLocalizedUiTexts()
     {
+        RefreshScreenshotUi();
         CalibrationTabText = L("Calibration", "Калибровка");
         BoardGeneratorTabText = L("Board Generator", "Генератор доски");
         ManagerTabText = L("Calibration Manager", "Менеджер калибровок");
@@ -3665,6 +3670,10 @@ public partial class MainWindowViewModel : ViewModelBase
     /// <summary>Unsubscribes event handlers and disposes all owned resources.</summary>
     public void Cleanup()
     {
+        PropertyChanged -= OnScreenshotStateChanged;
+        lock (_rectificationLock)
+            _screenshotsDisposed = true;
+        CancelScreenshotWait();
         ExceptionLogger.OnLogLine -= OnExceptionLogLine;
         SettingsVm.PropertyChanged -= OnSettingsViewModelPropertyChanged;
         SettingsVm.Dispose();

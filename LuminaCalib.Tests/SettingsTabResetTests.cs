@@ -92,6 +92,7 @@ public sealed class SettingsTabResetTests : IDisposable
         settings.AutoSaveCalibration = false;
         settings.CalibrationDataPath = "custom-data";
         settings.CaptureSessionsPath = "custom-sessions";
+        settings.ScreenshotsPath = "custom-screenshots";
         settings.LeftCameraUrl = "rtsp://left.test/stream";
         settings.LeftCameraLogin = "left-user";
         settings.LeftCameraPassword = "test-left-password";
@@ -136,6 +137,7 @@ public sealed class SettingsTabResetTests : IDisposable
         Assert.Equal(expected.AutoSaveCalibration, actual.AutoSaveCalibration);
         Assert.Equal(expected.CalibrationDataPath, actual.CalibrationDataPath);
         Assert.Equal(expected.CaptureSessionsPath, actual.CaptureSessionsPath);
+        Assert.Equal(expected.ScreenshotsPath, actual.ScreenshotsPath);
     }
 
     private static void AssertCameraSettings(AppSettings actual, AppSettings expected)

@@ -33,6 +33,10 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty]
     private string _captureSessionsPath = "./CaptureSessions";
 
+    /// <summary>Каталог для ректифицированных снимков стереопар.</summary>
+    [ObservableProperty]
+    private string _screenshotsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "LuminaCalib");
+
     // === Настройки левой камеры ===
     
     /// <summary>

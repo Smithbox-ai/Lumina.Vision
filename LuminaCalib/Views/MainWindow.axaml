@@ -21,6 +21,10 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
+    <Window.KeyBindings>
+      <KeyBinding Gesture="Ctrl+Shift+S" Command="{Binding SaveScreenshotCommand}"/>
+    </Window.KeyBindings>
+
     <!-- Root container holds both main content and overlay -->
     <Grid>
         <!-- Main Application Content -->
@@ -246,7 +250,7 @@
                         CornerRadius="8"
                         Padding="16"
                         Margin="0,12,0,0">
-                    <Grid RowDefinitions="Auto,Auto"
+                    <Grid RowDefinitions="Auto,Auto,Auto"
                           ColumnDefinitions="Auto,*,Auto">
                         <!-- Progress Info -->
                         <StackPanel Grid.Column="0" 
@@ -271,8 +275,6 @@
                             
                             <Border Width="1" Background="{StaticResource DividerBrush}"/>
                             
-                            <CheckBox Content="{Binding ShowRectifiedText}"
-                                      IsChecked="{Binding ShowRectified}"/>
                         </StackPanel>
                         
                         <!-- Main Action Buttons -->
@@ -319,7 +321,24 @@
                                     IsEnabled="{Binding CanCalibrate}"/>
                         </StackPanel>
 
-                        <Border Grid.Row="1"
+                        <Grid Grid.Row="1" Grid.ColumnSpan="3"
+                              ColumnDefinitions="Auto,Auto,Auto,*" Margin="0,12,0,0">
+                          <CheckBox Content="{Binding ShowRectifiedText}"
+                                    IsChecked="{Binding ShowRectified}" VerticalAlignment="Center"/>
+                          <Button Grid.Column="1" Name="SaveScreenshotButton"
+                                  Content="{Binding ScreenshotButtonText}" Command="{Binding SaveScreenshotCommand}"
+                                  Classes="secondary" Margin="12,0,0,0"
+                                  AutomationProperties.Name="{Binding ScreenshotButtonText}"
+                                  ToolTip.Tip="{Binding ScreenshotHintText}"/>
+                          <Button Grid.Column="2" Name="OpenScreenshotsFolderButton"
+                                  Content="{Binding OpenScreenshotsFolderText}" Command="{Binding OpenScreenshotsFolderCommand}"
+                                  Classes="secondary" Margin="8,0,0,0"/>
+                          <TextBlock Grid.Column="3" Text="{Binding ScreenshotHintText}"
+                                     Foreground="{StaticResource TextSecondaryBrush}" FontSize="11"
+                                     VerticalAlignment="Center" Margin="12,0,0,0" TextWrapping="Wrap"/>
+                        </Grid>
+
+                        <Border Grid.Row="2"
                                 Grid.ColumnSpan="3"
                                 Margin="0,14,0,0"
                                 Padding="12,10"
